@@ -1,14 +1,16 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDummyKeyForProductionSetup1234567",
-  authDomain: "nexus-key-system.firebaseapp.com",
-  projectId: "nexus-key-system",
-  storageBucket: "nexus-key-system.appspot.com",
-  messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:abcdef1234567890abcdef"
+    apiKey: "AIzaSyCVJ49ItRu-dUCtytI0P5v7mDLE_QcubO8",
+    authDomain: "kdtfdevt.firebaseapp.com",
+    databaseURL: "https://kdtfdevt-default-rtdb.firebaseio.com",
+    projectId: "kdtfdevt",
+    storageBucket: "kdtfdevt.firebasestorage.app",
+    messagingSenderId: "375523757842",
+    appId: "1:375523757842:web:e3edae2409412e399cedcb",
+    measurementId: "G-8R696PV3PB"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -18,7 +20,7 @@ const provider = new GoogleAuthProvider();
 
 const ADMIN_EMAILS = [
     "admin@gmail.com",
-    "ceo@nexus.com"
+    "ceo@nexus.com" 
 ];
 
 const DOM = {
@@ -305,4 +307,3 @@ DOM.searchInput.addEventListener('input', (e) => {
 });
 
 initParticles();
-              
