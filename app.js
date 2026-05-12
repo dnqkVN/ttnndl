@@ -19,8 +19,7 @@ const provider = new GoogleAuthProvider();
 
 // --- DANH SÁCH ADMIN (Đã thêm mail của cậu) ---
 const ADMIN_EMAILS = [
-    "khangdoannq@gmail.com", 
-    "admin@nexus.com"
+    "khangdoannq@gmail.com"
 ];
 
 // --- Đối tượng DOM ---
