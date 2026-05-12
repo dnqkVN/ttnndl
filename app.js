@@ -2,27 +2,29 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebas
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
+// --- Cấu hình Firebase mới của bạn ---
 const firebaseConfig = {
-    apiKey: "AIzaSyCVJ49ItRu-dUCtytI0P5v7mDLE_QcubO8",
-    authDomain: "kdtfdevt.firebaseapp.com",
-    databaseURL: "https://kdtfdevt-default-rtdb.firebaseio.com",
-    projectId: "kdtfdevt",
-    storageBucket: "kdtfdevt.firebasestorage.app",
-    messagingSenderId: "375523757842",
-    appId: "1:375523757842:web:e3edae2409412e399cedcb",
-    measurementId: "G-8R696PV3PB"
+  apiKey: "AIzaSyBPS1LHGU4BctFPO8vzje9LY3dln2i3FQw",
+  authDomain: "tunut-22b3c.firebaseapp.com",
+  projectId: "tunut-22b3c",
+  storageBucket: "tunut-22b3c.firebasestorage.app",
+  messagingSenderId: "311389599595",
+  appId: "1:311389599595:web:fc7e5ad5e5c7f6fc6ffe2e"
 };
 
+// Khởi tạo Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
+// --- DANH SÁCH ADMIN (Thay email của bạn vào đây) ---
 const ADMIN_EMAILS = [
-    "admin@gmail.com",
-    "ceo@nexus.com" 
+    "your-email@gmail.com", // Hãy thay email Google của bạn vào đây để có quyền truy cập
+    "admin@nexus.com"
 ];
 
+// --- Quản lý các thành phần giao diện (DOM) ---
 const DOM = {
     loginSection: document.getElementById('login-section'),
     dashboardSection: document.getElementById('dashboard-section'),
@@ -51,6 +53,7 @@ const DOM = {
 
 let keysData = [];
 
+// --- Hiệu ứng Particle Background ---
 function initParticles() {
     const canvas = document.getElementById('particles-bg');
     const ctx = canvas.getContext('2d');
@@ -95,215 +98,125 @@ function initParticles() {
         requestAnimationFrame(animate);
     }
     animate();
-
-    window.addEventListener('resize', () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    });
 }
 
+// --- Thông báo Toast ---
 function showToast(message, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    let icon = 'fa-circle-info';
-    if(type === 'success') icon = 'fa-circle-check';
-    if(type === 'error') icon = 'fa-circle-xmark';
-    
+    let icon = type === 'success' ? 'fa-circle-check' : (type === 'error' ? 'fa-circle-xmark' : 'fa-circle-info');
     toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
     DOM.toastContainer.appendChild(toast);
-    
-    setTimeout(() => {
-        if(toast.parentElement) toast.remove();
-    }, 3400);
+    setTimeout(() => toast.remove(), 3400);
 }
 
 function showLoading(show) {
-    if (show) DOM.loadingOverlay.classList.remove('hidden');
-    else DOM.loadingOverlay.classList.add('hidden');
+    DOM.loadingOverlay.classList.toggle('hidden', !show);
 }
 
+// --- Logic Hệ thống Key ---
 function generateRandomKey() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let p1 = '', p2 = '';
-    for(let i=0; i<4; i++) p1 += chars.charAt(Math.floor(Math.random() * chars.length));
-    for(let i=0; i<4; i++) p2 += chars.charAt(Math.floor(Math.random() * chars.length));
-    return `VIP-${p1}-${p2}`;
+    const r = () => Array.from({length: 4}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+    return `VIP-${r()}-${r()}`;
 }
 
+// --- Xử lý Đăng nhập/Đăng xuất ---
 DOM.btnLogin.addEventListener('click', async () => {
     try {
         showLoading(true);
-        DOM.loginError.classList.add('hidden');
         await signInWithPopup(auth, provider);
     } catch (error) {
         showLoading(false);
-        showToast(error.message, 'error');
+        showToast("Login failed!", 'error');
     }
 });
 
-DOM.btnLogout.addEventListener('click', () => {
-    signOut(auth);
-});
+DOM.btnLogout.addEventListener('click', () => signOut(auth));
 
 onAuthStateChanged(auth, (user) => {
-    if (user) {
-        if (ADMIN_EMAILS.includes(user.email)) {
-            DOM.userName.textContent = user.displayName;
-            DOM.userEmail.textContent = user.email;
-            DOM.userAvatar.src = user.photoURL;
-            
-            DOM.loginSection.classList.remove('active');
-            DOM.loginSection.classList.add('hidden');
-            DOM.dashboardSection.classList.remove('hidden');
-            DOM.dashboardSection.classList.add('active');
-            
-            loadKeys();
-            showLoading(false);
-            showToast('Welcome back, Admin!', 'success');
-        } else {
+    if (user && ADMIN_EMAILS.includes(user.email)) {
+        DOM.userName.textContent = user.displayName;
+        DOM.userEmail.textContent = user.email;
+        DOM.userAvatar.src = user.photoURL;
+        DOM.loginSection.classList.add('hidden');
+        DOM.dashboardSection.classList.remove('hidden');
+        loadKeys();
+    } else {
+        if (user) {
             signOut(auth);
-            showLoading(false);
             DOM.loginError.classList.remove('hidden');
         }
-    } else {
-        DOM.loginSection.classList.add('active');
         DOM.loginSection.classList.remove('hidden');
         DOM.dashboardSection.classList.add('hidden');
-        DOM.dashboardSection.classList.remove('active');
-        showLoading(false);
     }
+    showLoading(false);
 });
 
-function openModal() {
-    DOM.keyPreview.value = generateRandomKey();
-    DOM.modal.classList.remove('hidden');
-}
-
-function closeModal() {
-    DOM.modal.classList.add('hidden');
-}
-
-DOM.btnNavCreate.addEventListener('click', openModal);
-DOM.btnHeaderCreate.addEventListener('click', openModal);
-DOM.btnCloseModal.addEventListener('click', closeModal);
-DOM.btnGenerateRandom.addEventListener('click', () => {
-    DOM.keyPreview.value = generateRandomKey();
-});
-
-DOM.btnSaveKey.addEventListener('click', async () => {
-    const keyValue = DOM.keyPreview.value;
-    const durationDays = parseInt(DOM.keyDuration.value);
-    const user = auth.currentUser;
-
-    if (!user) return;
-
-    try {
-        showLoading(true);
-        const now = new Date();
-        let expiresAt = null;
-        
-        if (durationDays !== 9999) {
-            expiresAt = new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000);
-        }
-
-        await addDoc(collection(db, "keys"), {
-            keyString: keyValue,
-            createdBy: user.email,
-            createdAt: now.getTime(),
-            expiresAt: expiresAt ? expiresAt.getTime() : 'never',
-            isActive: true
-        });
-
-        closeModal();
-        showLoading(false);
-        showToast('Key generated successfully!', 'success');
-    } catch (error) {
-        showLoading(false);
-        showToast('Error saving key.', 'error');
-    }
-});
-
-function loadKeys() {
+// --- Thao tác với Database ---
+async function loadKeys() {
     const q = query(collection(db, "keys"), orderBy("createdAt", "desc"));
     onSnapshot(q, (snapshot) => {
         keysData = [];
-        let total = 0;
-        let active = 0;
-        let expired = 0;
-        const now = new Date().getTime();
+        let total = 0, active = 0, expired = 0;
+        const now = Date.now();
 
-        snapshot.forEach((docSnap) => {
-            const data = docSnap.data();
-            data.id = docSnap.id;
-            
-            if (data.expiresAt !== 'never' && now > data.expiresAt) {
-                data.isActive = false;
-            }
+        snapshot.forEach(docSnap => {
+            const data = { ...docSnap.data(), id: docSnap.id };
+            const isExpired = data.expiresAt !== 'never' && now > data.expiresAt;
+            if (isExpired) data.isActive = false;
             
             keysData.push(data);
             total++;
-            if (data.isActive) active++;
-            else expired++;
+            data.isActive ? active++ : expired++;
         });
 
         DOM.statTotal.textContent = total;
         DOM.statActive.textContent = active;
         DOM.statExpired.textContent = expired;
-
         renderTable(keysData);
     });
 }
 
 function renderTable(data) {
-    DOM.keysTbody.innerHTML = '';
-    data.forEach(item => {
-        const tr = document.createElement('tr');
-        
-        const createdDate = new Date(item.createdAt).toLocaleDateString() + ' ' + new Date(item.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        const expiresDate = item.expiresAt === 'never' ? 'Lifetime' : new Date(item.expiresAt).toLocaleDateString() + ' ' + new Date(item.expiresAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        const statusClass = item.isActive ? 'status-active' : 'status-expired';
-        const statusText = item.isActive ? 'Active' : 'Expired';
-
-        tr.innerHTML = `
+    DOM.keysTbody.innerHTML = data.map(item => `
+        <tr>
             <td><span class="key-string">${item.keyString}</span></td>
-            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+            <td><span class="status-badge ${item.isActive ? 'status-active' : 'status-expired'}">${item.isActive ? 'Active' : 'Expired'}</span></td>
             <td>${item.createdBy}</td>
-            <td>${createdDate}</td>
-            <td>${expiresDate}</td>
+            <td>${new Date(item.createdAt).toLocaleDateString()}</td>
+            <td>${item.expiresAt === 'never' ? 'Lifetime' : new Date(item.expiresAt).toLocaleDateString()}</td>
             <td>
-                <button class="action-btn btn-copy" data-key="${item.keyString}" title="Copy"><i class="fa-regular fa-copy"></i></button>
-                <button class="action-btn btn-delete" data-id="${item.id}" title="Delete"><i class="fa-solid fa-trash-can"></i></button>
+                <button class="action-btn btn-copy" onclick="navigator.clipboard.writeText('${item.keyString}'); alert('Copied!');"><i class="fa-regular fa-copy"></i></button>
+                <button class="action-btn btn-delete" data-id="${item.id}"><i class="fa-solid fa-trash-can"></i></button>
             </td>
-        `;
-        DOM.keysTbody.appendChild(tr);
-    });
+        </tr>
+    `).join('');
 
-    document.querySelectorAll('.btn-copy').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const keyStr = e.currentTarget.getAttribute('data-key');
-            navigator.clipboard.writeText(keyStr);
-            showToast('Key copied to clipboard!', 'success');
-        });
-    });
-
-    document.querySelectorAll('.btn-delete').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            if(confirm('Are you sure you want to delete this key?')) {
-                const id = e.currentTarget.getAttribute('data-id');
-                await deleteDoc(doc(db, "keys", id));
-                showToast('Key deleted.', 'info');
-            }
-        });
+    // Gán sự kiện xóa
+    DOM.keysTbody.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.onclick = () => confirm('Delete this key?') && deleteDoc(doc(db, "keys", btn.dataset.id));
     });
 }
 
-DOM.searchInput.addEventListener('input', (e) => {
-    const val = e.target.value.toLowerCase();
-    const filtered = keysData.filter(k => 
-        k.keyString.toLowerCase().includes(val) || 
-        k.createdBy.toLowerCase().includes(val)
-    );
-    renderTable(filtered);
-});
+// --- Event Listeners Modal ---
+DOM.btnHeaderCreate.onclick = () => { DOM.keyPreview.value = generateRandomKey(); DOM.modal.classList.remove('hidden'); };
+DOM.btnCloseModal.onclick = () => DOM.modal.classList.add('hidden');
+DOM.btnGenerateRandom.onclick = () => DOM.keyPreview.value = generateRandomKey();
+
+DOM.btnSaveKey.onclick = async () => {
+    const duration = parseInt(DOM.keyDuration.value);
+    const expiresAt = duration === 9999 ? 'never' : Date.now() + (duration * 86400000);
+    
+    await addDoc(collection(db, "keys"), {
+        keyString: DOM.keyPreview.value,
+        createdBy: auth.currentUser.email,
+        createdAt: Date.now(),
+        expiresAt: expiresAt,
+        isActive: true
+    });
+    DOM.modal.classList.add('hidden');
+    showToast('Key created!', 'success');
+};
 
 initParticles();
