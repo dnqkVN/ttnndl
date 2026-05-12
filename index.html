@@ -1,1 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Key System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="particles-bg"></canvas>
 
+    <div id="toast-container"></div>
+
+    <div id="loading-overlay" class="hidden">
+        <div class="loader">
+            <div class="glow-circle"></div>
+            <div class="loader-icon"><i class="fa-solid fa-shield-halved"></i></div>
+        </div>
+        <p>Authenticating / Loading...</p>
+    </div>
+
+    <section id="login-section" class="active">
+        <div class="login-card glass-panel">
+            <div class="logo-container">
+                <i class="fa-solid fa-fingerprint neon-icon"></i>
+                <h2>NEXUS<span>KEY</span></h2>
+                <p>Premium Authorization System</p>
+            </div>
+            <button id="btn-google-login" class="btn-gradient">
+                <i class="fa-brands fa-google"></i> Sign in with Google
+            </button>
+            <p id="login-error" class="error-msg hidden">Access Denied: You do not have admin privileges.</p>
+        </div>
+    </section>
+
+    <section id="dashboard-section" class="hidden">
+        <aside class="sidebar glass-panel">
+            <div class="sidebar-header">
+                <i class="fa-solid fa-fingerprint neon-icon"></i>
+                <h2>NEXUS<span>KEY</span></h2>
+            </div>
+            <div class="user-profile">
+                <img id="user-avatar" src="" alt="Avatar">
+                <div class="user-info">
+                    <span id="user-name">Admin Name</span>
+                    <span id="user-email">admin@email.com</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active"><i class="fa-solid fa-border-all"></i> Dashboard</a>
+                <a href="#" class="nav-item" id="btn-nav-create"><i class="fa-solid fa-key"></i> Generate Key</a>
+                <a href="#" class="nav-item" id="btn-logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar glass-panel">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="search-input" placeholder="Search keys...">
+                </div>
+                <button id="btn-create-header" class="btn-gradient btn-sm">
+                    <i class="fa-solid fa-plus"></i> New Key
+                </button>
+            </header>
+
+            <div class="stats-grid">
+                <div class="stat-card glass-panel">
+                    <div class="stat-icon"><i class="fa-solid fa-key"></i></div>
+                    <div class="stat-details">
+                        <h3>Total Keys</h3>
+                        <h2 id="stat-total">0</h2>
+                    </div>
+                </div>
+                <div class="stat-card glass-panel">
+                    <div class="stat-icon" style="color: #00ff88; text-shadow: 0 0 10px rgba(0,255,136,0.5);"><i class="fa-solid fa-check-circle"></i></div>
+                    <div class="stat-details">
+                        <h3>Active Keys</h3>
+                        <h2 id="stat-active">0</h2>
+                    </div>
+                </div>
+                <div class="stat-card glass-panel">
+                    <div class="stat-icon" style="color: #ff3366; text-shadow: 0 0 10px rgba(255,51,102,0.5);"><i class="fa-solid fa-clock"></i></div>
+                    <div class="stat-details">
+                        <h3>Expired Keys</h3>
+                        <h2 id="stat-expired">0</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container glass-panel">
+                <div class="table-header">
+                    <h3>Key Database</h3>
+                </div>
+                <div class="table-responsive">
+                    <table id="keys-table">
+                        <thead>
+                            <tr>
+                                <th>Key</th>
+                                <th>Status</th>
+                                <th>Created By</th>
+                                <th>Created At</th>
+                                <th>Expires At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="keys-tbody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </section>
+
+    <div id="create-modal" class="modal hidden">
+        <div class="modal-content glass-panel">
+            <div class="modal-header">
+                <h3>Generate New Key</h3>
+                <button id="btn-close-modal" class="btn-close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Duration</label>
+                    <select id="key-duration" class="glass-input">
+                        <option value="1">1 Day</option>
+                        <option value="7">7 Days</option>
+                        <option value="30">30 Days</option>
+                        <option value="9999">Lifetime / Unlimited</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Generated Key Preview</label>
+                    <input type="text" id="key-preview" class="glass-input" readonly>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-generate-random" class="btn-outline"><i class="fa-solid fa-rotate"></i> Randomize</button>
+                <button id="btn-save-key" class="btn-gradient"><i class="fa-solid fa-floppy-disk"></i> Save Key</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
