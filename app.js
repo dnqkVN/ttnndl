@@ -20,7 +20,7 @@ const provider = new GoogleAuthProvider();
 
 // --- DANH SÁCH ADMIN (Thay email của bạn vào đây) ---
 const ADMIN_EMAILS = [
-    "your-email@gmail.com", // Hãy thay email Google của bạn vào đây để có quyền truy cập
+    "khangdoannq@gmail.com", // Hãy thay email Google của bạn vào đây để có quyền truy cập
     "admin@nexus.com"
 ];
 
