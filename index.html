@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS KEY | Premium Authorization</title>
+    <title>NexusKey - Premium System</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <canvas id="particles-bg"></canvas>
-    <div class="bg-glow"></div>
 
     <div id="toast-container"></div>
 
@@ -27,12 +26,12 @@
             <div class="logo-container">
                 <i class="fa-solid fa-fingerprint neon-icon"></i>
                 <h2>NEXUS<span>KEY</span></h2>
-                <p>Advanced Security Management</p>
+                <p>Premium Authorization System</p>
             </div>
             <button id="btn-google-login" class="btn-gradient">
                 <i class="fa-brands fa-google"></i> Sign in with Google
             </button>
-            <p id="login-error" class="error-msg hidden">Access Denied: Admin Privileges Required.</p>
+            <p id="login-error" class="error-msg hidden">Access Denied: You do not have admin privileges.</p>
         </div>
     </section>
 
@@ -43,14 +42,14 @@
                 <h2>NEXUS<span>KEY</span></h2>
             </div>
             <div class="user-profile">
-                <img id="user-avatar" src="" alt="Profile">
+                <img id="user-avatar" src="" alt="Avatar">
                 <div class="user-info">
-                    <span id="user-name">Admin</span>
-                    <span id="user-email">admin@nexus.io</span>
+                    <span id="user-name">Admin Name</span>
+                    <span id="user-email">admin@email.com</span>
                 </div>
             </div>
             <nav class="sidebar-nav">
-                <a href="#" class="nav-item active" id="nav-dash"><i class="fa-solid fa-border-all"></i> Dashboard</a>
+                <a href="#" class="nav-item active"><i class="fa-solid fa-border-all"></i> Dashboard</a>
                 <a href="#" class="nav-item" id="btn-nav-create"><i class="fa-solid fa-key"></i> Generate Key</a>
                 <a href="#" class="nav-item" id="btn-logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
             </nav>
@@ -60,7 +59,7 @@
             <header class="top-bar glass-panel">
                 <div class="search-box">
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="search-input" placeholder="Search keys by ID...">
+                    <input type="text" id="search-input" placeholder="Search keys...">
                 </div>
                 <button id="btn-create-header" class="btn-gradient btn-sm">
                     <i class="fa-solid fa-plus"></i> New Key
@@ -69,36 +68,30 @@
 
             <div class="stats-grid">
                 <div class="stat-card glass-panel">
-                    <div class="stat-icon"><i class="fa-solid fa-database"></i></div>
+                    <div class="stat-icon"><i class="fa-solid fa-key"></i></div>
                     <div class="stat-details">
                         <h3>Total Keys</h3>
                         <h2 id="stat-total">0</h2>
                     </div>
                 </div>
-                <div class="stat-card glass-panel">
-                    <div class="stat-icon" style="color: #00ff88; text-shadow: 0 0 10px rgba(0,255,136,0.3);"><i class="fa-solid fa-bolt"></i></div>
-                    <div class="stat-details">
-                        <h3>Active</h3>
-                        <h2 id="stat-active">0</h2>
-                    </div>
-                </div>
-                <div class="stat-card glass-panel">
-                    <div class="stat-icon" style="color: #ff3366; text-shadow: 0 0 10px rgba(255,51,102,0.3);"><i class="fa-solid fa-clock-rotate-left"></i></div>
-                    <div class="stat-details">
-                        <h3>Expired</h3>
-                        <h2 id="stat-expired">0</h2>
-                    </div>
-                </div>
             </div>
 
-            <div class="tabs-container glass-panel">
-                <button class="tab-btn active" data-filter="all">All Keys</button>
-                <button class="tab-btn" data-filter="active">Active</button>
-                <button class="tab-btn" data-filter="expired">Expired</button>
-            </div>
-
-            <div id="keys-container" class="cards-grid">
-                <!-- Dynamic Content -->
+            <div class="table-container glass-panel">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Key String</th>
+                            <th>Created By</th>
+                            <th>Created At</th>
+                            <th>Expires At</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="keys-tbody">
+                        <!-- Content via JS -->
+                    </tbody>
+                </table>
             </div>
         </main>
     </section>
@@ -106,29 +99,26 @@
     <div id="create-modal" class="modal hidden">
         <div class="modal-content glass-panel">
             <div class="modal-header">
-                <h3><i class="fa-solid fa-plus-circle"></i> Generate Key</h3>
+                <h3>Generate New Key</h3>
                 <button id="btn-close-modal" class="btn-close"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label>Duration Limit</label>
+                    <label>Duration (Days)</label>
                     <select id="key-duration" class="glass-input">
-                        <option value="1">1 Day (Temporary)</option>
-                        <option value="7">7 Days (Weekly)</option>
-                        <option value="30">30 Days (Monthly)</option>
-                        <option value="9999">Unlimited (Lifetime)</option>
+                        <option value="1">1 Day</option>
+                        <option value="7">7 Days</option>
+                        <option value="30">30 Days</option>
+                        <option value="9999">Unlimited</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Generated Signature</label>
-                    <div class="preview-box">
-                        <input type="text" id="key-preview" class="glass-input" readonly>
-                        <button id="btn-generate-random" class="btn-refresh"><i class="fa-solid fa-rotate"></i></button>
-                    </div>
+                    <label>Key Preview</label>
+                    <input type="text" id="key-preview" class="glass-input" readonly>
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="btn-save-key" class="btn-gradient"><i class="fa-solid fa-floppy-disk"></i> Deploy Key</button>
+                <button id="btn-save-key" class="btn-gradient">Save Key</button>
             </div>
         </div>
     </div>
