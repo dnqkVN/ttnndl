@@ -1,83 +1,147 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Server Key Admin v1.2</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Thêm icon để giống ảnh mẫu -->
+    <title>Premium Key System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <canvas id="particles-bg"></canvas>
+
     <div id="toast-container"></div>
 
-    <!-- Màn hình đăng nhập -->
-    <div id="login-section" class="container">
-        <div class="login-box">
-            <i class="fa-solid fa-cube neon-icon"></i>
-            <h1>SERVER KEY <span>ADMIN</span></h1>
-            <button id="btn-google-login"><i class="fa-brands fa-google"></i> Login with Google</button>
-            <div id="login-error" class="hidden">Bạn không có quyền Admin!</div>
+    <div id="loading-overlay" class="hidden">
+        <div class="loader">
+            <div class="glow-circle"></div>
+            <div class="loader-icon"><i class="fa-solid fa-shield-halved"></i></div>
         </div>
+        <p>Authenticating / Loading...</p>
     </div>
 
-    <!-- Màn hình chính -->
-    <div id="dashboard-section" class="container hidden">
-        <header>
-            <div class="header-left">
-                <i class="fa-solid fa-cube"></i>
-                <span>Server Key Admin v1.2</span>
+    <section id="login-section" class="active">
+        <div class="login-card glass-panel">
+            <div class="logo-container">
+                <i class="fa-solid fa-fingerprint neon-icon"></i>
+                <h2>NEXUS<span>KEY</span></h2>
+                <p>Premium Authorization System</p>
             </div>
-            <div class="header-right">
-                <i class="fa-solid fa-palette"></i>
-                <i class="fa-solid fa-rotate-right" onclick="location.reload()"></i>
+            <button id="btn-google-login" class="btn-gradient">
+                <i class="fa-brands fa-google"></i> Sign in with Google
+            </button>
+            <p id="login-error" class="error-msg hidden">Access Denied: You do not have admin privileges.</p>
+        </div>
+    </section>
+
+    <section id="dashboard-section" class="hidden">
+        <aside class="sidebar glass-panel">
+            <div class="sidebar-header">
+                <i class="fa-solid fa-fingerprint neon-icon"></i>
+                <h2>NEXUS<span>KEY</span></h2>
             </div>
-        </header>
+            <div class="user-profile">
+                <img id="user-avatar" src="" alt="Avatar">
+                <div class="user-info">
+                    <span id="user-name">Admin Name</span>
+                    <span id="user-email">admin@email.com</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active"><i class="fa-solid fa-border-all"></i> Dashboard</a>
+                <a href="#" class="nav-item" id="btn-nav-create"><i class="fa-solid fa-key"></i> Generate Key</a>
+                <a href="#" class="nav-item" id="btn-logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            </nav>
+        </aside>
 
-        <div class="search-container">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="search-input" placeholder="Search Device ID...">
-        </div>
+        <main class="main-content">
+            <header class="top-bar glass-panel">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="search-input" placeholder="Search keys...">
+                </div>
+                <button id="btn-create-header" class="btn-gradient btn-sm">
+                    <i class="fa-solid fa-plus"></i> New Key
+                </button>
+            </header>
 
-        <div class="filter-tabs">
-            <button class="tab active">All Devices</button>
-            <button class="tab">Allowed Only</button>
-            <button class="tab">Banned Only</button>
-        </div>
+            <div class="stats-grid">
+                <div class="stat-card glass-panel">
+                    <div class="stat-icon"><i class="fa-solid fa-key"></i></div>
+                    <div class="stat-details">
+                        <h3>Total Keys</h3>
+                        <h2 id="stat-total">0</h2>
+                    </div>
+                </div>
+                <div class="stat-card glass-panel">
+                    <div class="stat-icon" style="color: #00ff88; text-shadow: 0 0 10px rgba(0,255,136,0.5);"><i class="fa-solid fa-check-circle"></i></div>
+                    <div class="stat-details">
+                        <h3>Active Keys</h3>
+                        <h2 id="stat-active">0</h2>
+                    </div>
+                </div>
+                <div class="stat-card glass-panel">
+                    <div class="stat-icon" style="color: #ff3366; text-shadow: 0 0 10px rgba(255,51,102,0.5);"><i class="fa-solid fa-clock"></i></div>
+                    <div class="stat-details">
+                        <h3>Expired Keys</h3>
+                        <h2 id="stat-expired">0</h2>
+                    </div>
+                </div>
+            </div>
 
-        <!-- Vùng chứa Card - Giữ nguyên ID keys-tbody của cậu -->
-        <div id="keys-tbody" class="cards-list"></div>
+            <div class="table-container glass-panel">
+                <div class="table-header">
+                    <h3>Key Database</h3>
+                </div>
+                <div class="table-responsive">
+                    <table id="keys-table">
+                        <thead>
+                            <tr>
+                                <th>Key</th>
+                                <th>Status</th>
+                                <th>Created By</th>
+                                <th>Created At</th>
+                                <th>Expires At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="keys-tbody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </section>
 
-        <!-- Thanh điều hướng dưới cùng (Bottom Nav) -->
-        <div class="bottom-nav">
-            <div class="nav-item"><i class="fa-solid fa-key"></i><span>KEYS</span></div>
-            <div class="nav-item active"><i class="fa-solid fa-mobile-screen"></i><span>DEVICES</span></div>
-            <div class="nav-item"><i class="fa-solid fa-sliders"></i><span>CONFIG</span></div>
-        </div>
-
-        <!-- Nút thêm mới -->
-        <button id="btn-create-header" class="fab-btn"><i class="fa-solid fa-plus"></i></button>
-    </div>
-
-    <!-- Modal tạo key -->
     <div id="create-modal" class="modal hidden">
-        <div class="modal-content">
-            <h3>Tạo Key Mới</h3>
-            <input type="text" id="key-preview" placeholder="Mã Key">
-            <select id="key-duration">
-                <option value="1">1 Ngày</option>
-                <option value="7">7 Ngày</option>
-                <option value="30">30 Ngày</option>
-                <option value="9999">Vĩnh viễn</option>
-            </select>
-            <div class="modal-actions">
-                <button id="btn-close-modal">Hủy</button>
-                <button id="btn-save-key">Lưu Key</button>
+        <div class="modal-content glass-panel">
+            <div class="modal-header">
+                <h3>Generate New Key</h3>
+                <button id="btn-close-modal" class="btn-close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Duration</label>
+                    <select id="key-duration" class="glass-input">
+                        <option value="1">1 Day</option>
+                        <option value="7">7 Days</option>
+                        <option value="30">30 Days</option>
+                        <option value="9999">Lifetime / Unlimited</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Generated Key Preview</label>
+                    <input type="text" id="key-preview" class="glass-input" readonly>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-generate-random" class="btn-outline"><i class="fa-solid fa-rotate"></i> Randomize</button>
+                <button id="btn-save-key" class="btn-gradient"><i class="fa-solid fa-floppy-disk"></i> Save Key</button>
             </div>
         </div>
     </div>
 
     <script type="module" src="app.js"></script>
 </body>
-    </html>
-                    
+</html>
