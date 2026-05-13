@@ -3,114 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus Key - Admin</title>
+    <title>Server Key Admin v1.2</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Thêm icon để giống ảnh mẫu -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Hiệu ứng nền -->
-    <canvas id="particles-bg"></canvas>
-    
-    <!-- Thông báo và Loading -->
     <div id="toast-container"></div>
-    <div id="loading-overlay" class="hidden">
-        <div class="spinner"></div>
-    </div>
 
-    <!-- MÀN HÌNH ĐĂNG NHẬP -->
+    <!-- Màn hình đăng nhập -->
     <div id="login-section" class="container">
         <div class="login-box">
-            <i class="fa-solid fa-fingerprint login-icon"></i>
-            <h1>KHÓA <span>NEXUS</span></h1>
-            <p>Hệ thống ủy quyền cao cấp</p>
-            <button id="btn-google-login"><i class="fa-brands fa-google"></i> Đăng nhập bằng Google</button>
-            <div id="login-error" class="hidden">Access Denied: You do not have admin privileges.</div>
+            <i class="fa-solid fa-cube neon-icon"></i>
+            <h1>SERVER KEY <span>ADMIN</span></h1>
+            <button id="btn-google-login"><i class="fa-brands fa-google"></i> Login with Google</button>
+            <div id="login-error" class="hidden">Bạn không có quyền Admin!</div>
         </div>
     </div>
 
-    <!-- MÀN HÌNH DASHBOARD -->
+    <!-- Màn hình chính -->
     <div id="dashboard-section" class="container hidden">
         <header>
-            <div class="user-info">
-                <img id="user-avatar" src="" alt="Avatar">
-                <div>
-                    <h3 id="user-name">Admin</h3>
-                    <p id="user-email">email@gmail.com</p>
-                </div>
+            <div class="header-left">
+                <i class="fa-solid fa-cube"></i>
+                <span>Server Key Admin v1.2</span>
             </div>
-            <div class="header-actions">
-                <button id="btn-create-header" class="btn-primary"><i class="fa-solid fa-plus"></i></button>
-                <button id="btn-logout" class="btn-danger"><i class="fa-solid fa-right-from-bracket"></i></button>
+            <div class="header-right">
+                <i class="fa-solid fa-palette"></i>
+                <i class="fa-solid fa-rotate-right" onclick="location.reload()"></i>
             </div>
         </header>
 
-        <div class="stats-container">
-            <div class="stat-card"><h3>Total</h3><p id="stat-total">0</p></div>
-            <div class="stat-card"><h3>Active</h3><p id="stat-active" class="text-success">0</p></div>
-            <div class="stat-card"><h3>Expired</h3><p id="stat-expired" class="text-danger">0</p></div>
-        </div>
-
-        <div class="search-box">
+        <div class="search-container">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="search-input" placeholder="Search Device ID or Key...">
+            <input type="text" id="search-input" placeholder="Search Device ID...">
         </div>
 
-        <!-- Bộ lọc trạng thái -->
-        <div class="filter-container">
-            <button class="filter-btn active">All Devices</button>
-            <button class="filter-btn">Allowed Only</button>
-            <button class="filter-btn">Banned Only</button>
+        <div class="filter-tabs">
+            <button class="tab active">All Devices</button>
+            <button class="tab">Allowed Only</button>
+            <button class="tab">Banned Only</button>
         </div>
 
-        <!-- VÙNG HIỂN THỊ CARD (Thay cho bảng cũ) -->
-        <div id="keys-container" class="keys-grid">
-            <!-- Code JavaScript sẽ tự động chèn Card vào đây -->
-        </div>
+        <!-- Vùng chứa Card - Giữ nguyên ID keys-tbody của cậu -->
+        <div id="keys-tbody" class="cards-list"></div>
 
-        <!-- THANH ĐIỀU HƯỚNG DƯỚI CÙNG (BOTTOM NAV) -->
+        <!-- Thanh điều hướng dưới cùng (Bottom Nav) -->
         <div class="bottom-nav">
-            <div class="nav-item">
-                <i class="fa-solid fa-key"></i>
-                <span>KEYS</span>
-            </div>
-            <div class="nav-item active">
-                <i class="fa-solid fa-mobile-screen"></i>
-                <span>DEVICES</span>
-            </div>
-            <div class="nav-item">
-                <i class="fa-solid fa-sliders"></i>
-                <span>CONFIG</span>
-            </div>
+            <div class="nav-item"><i class="fa-solid fa-key"></i><span>KEYS</span></div>
+            <div class="nav-item active"><i class="fa-solid fa-mobile-screen"></i><span>DEVICES</span></div>
+            <div class="nav-item"><i class="fa-solid fa-sliders"></i><span>CONFIG</span></div>
         </div>
+
+        <!-- Nút thêm mới -->
+        <button id="btn-create-header" class="fab-btn"><i class="fa-solid fa-plus"></i></button>
     </div>
 
-    <!-- MODAL TẠO KEY -->
+    <!-- Modal tạo key -->
     <div id="create-modal" class="modal hidden">
         <div class="modal-content">
-            <h2>Tạo Key Mới</h2>
-            <div class="form-group">
-                <label>Mã Key:</label>
-                <div class="input-group">
-                    <input type="text" id="key-preview">
-                    <button id="btn-generate-random"><i class="fa-solid fa-rotate-right"></i></button>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Thời hạn:</label>
-                <select id="key-duration">
-                    <option value="1">1 Ngày</option>
-                    <option value="7">7 Ngày</option>
-                    <option value="30">30 Ngày</option>
-                    <option value="9999">Vĩnh viễn (Lifetime)</option>
-                </select>
-            </div>
+            <h3>Tạo Key Mới</h3>
+            <input type="text" id="key-preview" placeholder="Mã Key">
+            <select id="key-duration">
+                <option value="1">1 Ngày</option>
+                <option value="7">7 Ngày</option>
+                <option value="30">30 Ngày</option>
+                <option value="9999">Vĩnh viễn</option>
+            </select>
             <div class="modal-actions">
-                <button id="btn-close-modal" class="btn-secondary">Hủy</button>
-                <button id="btn-save-key" class="btn-primary">Lưu Key</button>
+                <button id="btn-close-modal">Hủy</button>
+                <button id="btn-save-key">Lưu Key</button>
             </div>
         </div>
     </div>
 
     <script type="module" src="app.js"></script>
 </body>
-</html>
+    </html>
+                    
