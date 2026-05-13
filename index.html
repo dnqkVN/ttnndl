@@ -90,26 +90,17 @@
                 </div>
             </div>
 
-            <div class="table-container glass-panel">
-                <div class="table-header">
-                    <h3>Key Database</h3>
-                </div>
-                <div class="table-responsive">
-                    <table id="keys-table">
-                        <thead>
-                            <tr>
-                                <th>Key</th>
-                                <th>Status</th>
-                                <th>Created By</th>
-                                <th>Created At</th>
-                                <th>Expires At</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="keys-tbody">
-                        </tbody>
-                    </table>
-                </div>
+            <!-- 4 TABS MỚI -->
+            <div class="tabs-wrapper glass-panel">
+                <button class="tab-item active" data-filter="all">All Keys</button>
+                <button class="tab-item" data-filter="active">Active</button>
+                <button class="tab-item" data-filter="expired">Expired</button>
+                <button class="tab-item" data-filter="banned">Banned</button>
+            </div>
+
+            <!-- CONTAINER CHỨA CARD (Thay cho Table) -->
+            <div id="keys-tbody" class="cards-display-grid">
+                <!-- Card sẽ tự động render ở đây -->
             </div>
         </main>
     </section>
