@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexusKey - Premium System</title>
+    <title>Premium Key System</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
@@ -18,7 +18,7 @@
             <div class="glow-circle"></div>
             <div class="loader-icon"><i class="fa-solid fa-shield-halved"></i></div>
         </div>
-        <p>Authenticating...</p>
+        <p>Authenticating / Loading...</p>
     </div>
 
     <section id="login-section" class="active">
@@ -74,24 +74,42 @@
                         <h2 id="stat-total">0</h2>
                     </div>
                 </div>
+                <div class="stat-card glass-panel">
+                    <div class="stat-icon" style="color: #00ff88; text-shadow: 0 0 10px rgba(0,255,136,0.5);"><i class="fa-solid fa-check-circle"></i></div>
+                    <div class="stat-details">
+                        <h3>Active Keys</h3>
+                        <h2 id="stat-active">0</h2>
+                    </div>
+                </div>
+                <div class="stat-card glass-panel">
+                    <div class="stat-icon" style="color: #ff3366; text-shadow: 0 0 10px rgba(255,51,102,0.5);"><i class="fa-solid fa-clock"></i></div>
+                    <div class="stat-details">
+                        <h3>Expired Keys</h3>
+                        <h2 id="stat-expired">0</h2>
+                    </div>
+                </div>
             </div>
 
             <div class="table-container glass-panel">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Key String</th>
-                            <th>Created By</th>
-                            <th>Created At</th>
-                            <th>Expires At</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="keys-tbody">
-                        <!-- Content via JS -->
-                    </tbody>
-                </table>
+                <div class="table-header">
+                    <h3>Key Database</h3>
+                </div>
+                <div class="table-responsive">
+                    <table id="keys-table">
+                        <thead>
+                            <tr>
+                                <th>Key</th>
+                                <th>Status</th>
+                                <th>Created By</th>
+                                <th>Created At</th>
+                                <th>Expires At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="keys-tbody">
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </main>
     </section>
@@ -104,21 +122,22 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label>Duration (Days)</label>
+                    <label>Duration</label>
                     <select id="key-duration" class="glass-input">
                         <option value="1">1 Day</option>
                         <option value="7">7 Days</option>
                         <option value="30">30 Days</option>
-                        <option value="9999">Unlimited</option>
+                        <option value="9999">Lifetime / Unlimited</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Key Preview</label>
+                    <label>Generated Key Preview</label>
                     <input type="text" id="key-preview" class="glass-input" readonly>
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="btn-save-key" class="btn-gradient">Save Key</button>
+                <button id="btn-generate-random" class="btn-outline"><i class="fa-solid fa-rotate"></i> Randomize</button>
+                <button id="btn-save-key" class="btn-gradient"><i class="fa-solid fa-floppy-disk"></i> Save Key</button>
             </div>
         </div>
     </div>
