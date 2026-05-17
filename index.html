@@ -1,147 +1,310 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Key System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>NEXUS KEY</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+
+:root{
+--bg:#050816;
+--primary:#00f2fe;
+--secondary:#4facfe;
+--glass:rgba(255,255,255,0.03);
+--border:rgba(255,255,255,0.08);
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+background:var(--bg);
+font-family:'Inter',sans-serif;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+overflow:hidden;
+color:white;
+}
+
+.card{
+width:350px;
+padding:30px;
+border-radius:25px;
+background:var(--glass);
+backdrop-filter:blur(15px);
+border:1px solid var(--border);
+text-align:center;
+box-shadow:0 0 40px rgba(0,0,0,0.5);
+}
+
+h1{
+font-family:'Rajdhani',sans-serif;
+font-size:38px;
+margin-bottom:10px;
+}
+
+h1 span{
+color:#00f2fe;
+}
+
+p{
+color:#aaa;
+margin-bottom:25px;
+}
+
+button{
+width:100%;
+height:50px;
+border:none;
+border-radius:14px;
+background:linear-gradient(135deg,#00f2fe,#4facfe);
+font-size:17px;
+font-weight:700;
+cursor:pointer;
+color:#000;
+transition:.3s;
+}
+
+button:hover{
+transform:translateY(-3px);
+}
+
+#keyBox{
+margin-top:25px;
+padding:15px;
+border-radius:15px;
+background:rgba(0,0,0,0.3);
+border:1px solid rgba(255,255,255,0.08);
+font-size:18px;
+word-break:break-all;
+display:none;
+}
+
+canvas{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+z-index:-1;
+}
+
+</style>
 </head>
 <body>
-    <canvas id="particles-bg"></canvas>
 
-    <div id="toast-container"></div>
+<canvas id="bg"></canvas>
 
-    <div id="loading-overlay" class="hidden">
-        <div class="loader">
-            <div class="glow-circle"></div>
-            <div class="loader-icon"><i class="fa-solid fa-shield-halved"></i></div>
-        </div>
-        <p>Authenticating / Loading...</p>
-    </div>
+<div class="card">
 
-    <section id="login-section" class="active">
-        <div class="login-card glass-panel">
-            <div class="logo-container">
-                <i class="fa-solid fa-fingerprint neon-icon"></i>
-                <h2>NEXUS<span>KEY</span></h2>
-                <p>Premium Authorization System</p>
-            </div>
-            <button id="btn-google-login" class="btn-gradient">
-                <i class="fa-brands fa-google"></i> Sign in with Google
-            </button>
-            <p id="login-error" class="error-msg hidden">Access Denied: You do not have admin privileges.</p>
-        </div>
-    </section>
+<h1>NEXUS<span>KEY</span></h1>
 
-    <section id="dashboard-section" class="hidden">
-        <aside class="sidebar glass-panel">
-            <div class="sidebar-header">
-                <i class="fa-solid fa-fingerprint neon-icon"></i>
-                <h2>NEXUS<span>KEY</span></h2>
-            </div>
-            <div class="user-profile">
-                <img id="user-avatar" src="" alt="Avatar">
-                <div class="user-info">
-                    <span id="user-name">Admin Name</span>
-                    <span id="user-email">admin@email.com</span>
-                </div>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="#" class="nav-item active"><i class="fa-solid fa-border-all"></i> Dashboard</a>
-                <a href="#" class="nav-item" id="btn-nav-create"><i class="fa-solid fa-key"></i> Generate Key</a>
-                <a href="#" class="nav-item" id="btn-logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
-            </nav>
-        </aside>
+<p>Premium Key System</p>
 
-        <main class="main-content">
-            <header class="top-bar glass-panel">
-                <div class="search-box">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="search-input" placeholder="Search keys...">
-                </div>
-                <button id="btn-create-header" class="btn-gradient btn-sm">
-                    <i class="fa-solid fa-plus"></i> New Key
-                </button>
-            </header>
+<button onclick="getKey()">
+GET KEY
+</button>
 
-            <div class="stats-grid">
-                <div class="stat-card glass-panel">
-                    <div class="stat-icon"><i class="fa-solid fa-key"></i></div>
-                    <div class="stat-details">
-                        <h3>Total Keys</h3>
-                        <h2 id="stat-total">0</h2>
-                    </div>
-                </div>
-                <div class="stat-card glass-panel">
-                    <div class="stat-icon" style="color: #00ff88; text-shadow: 0 0 10px rgba(0,255,136,0.5);"><i class="fa-solid fa-check-circle"></i></div>
-                    <div class="stat-details">
-                        <h3>Active Keys</h3>
-                        <h2 id="stat-active">0</h2>
-                    </div>
-                </div>
-                <div class="stat-card glass-panel">
-                    <div class="stat-icon" style="color: #ff3366; text-shadow: 0 0 10px rgba(255,51,102,0.5);"><i class="fa-solid fa-clock"></i></div>
-                    <div class="stat-details">
-                        <h3>Expired Keys</h3>
-                        <h2 id="stat-expired">0</h2>
-                    </div>
-                </div>
-            </div>
+<div id="keyBox"></div>
 
-            <div class="table-container glass-panel">
-                <div class="table-header">
-                    <h3>Key Database</h3>
-                </div>
-                <div class="table-responsive">
-                    <table id="keys-table">
-                        <thead>
-                            <tr>
-                                <th>Key</th>
-                                <th>Status</th>
-                                <th>Created By</th>
-                                <th>Created At</th>
-                                <th>Expires At</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="keys-tbody">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </main>
-    </section>
+</div>
 
-    <div id="create-modal" class="modal hidden">
-        <div class="modal-content glass-panel">
-            <div class="modal-header">
-                <h3>Generate New Key</h3>
-                <button id="btn-close-modal" class="btn-close"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label>Duration</label>
-                    <select id="key-duration" class="glass-input">
-                        <option value="1">1 Day</option>
-                        <option value="7">7 Days</option>
-                        <option value="30">30 Days</option>
-                        <option value="9999">Lifetime / Unlimited</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Generated Key Preview</label>
-                    <input type="text" id="key-preview" class="glass-input" readonly>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="btn-generate-random" class="btn-outline"><i class="fa-solid fa-rotate"></i> Randomize</button>
-                <button id="btn-save-key" class="btn-gradient"><i class="fa-solid fa-floppy-disk"></i> Save Key</button>
-            </div>
-        </div>
-    </div>
+<script type="module">
 
-    <script type="module" src="app.js"></script>
+import { initializeApp }
+
+from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+
+import {
+
+getDatabase,
+ref,
+set,
+onValue
+
+}
+
+from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyBPS1LHGU4BctFPO8vzje9LY3dln2i3FQw",
+
+authDomain: "tunut-22b3c.firebaseapp.com",
+
+databaseURL: "https://tunut-22b3c-default-rtdb.firebaseio.com",
+
+projectId: "tunut-22b3c",
+
+storageBucket: "tunut-22b3c.firebasestorage.app",
+
+messagingSenderId: "311389599595",
+
+appId: "1:311389599595:web:fc7e5ad5e5c7f6fc6ffe2e"
+
+};
+
+const app = initializeApp(firebaseConfig);
+
+const db = getDatabase(app);
+
+function randomKey(){
+
+const chars =
+'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+let p1='',p2='';
+
+for(let i=0;i<4;i++)
+p1 += chars.charAt(Math.floor(Math.random()*chars.length));
+
+for(let i=0;i<4;i++)
+p2 += chars.charAt(Math.floor(Math.random()*chars.length));
+
+return `VIP-${p1}-${p2}`;
+
+}
+
+async function createYeuMoney(url){
+
+const api =
+`https://yeumoney.com/QL_api.php?token=f7916abe40bf4bc636b0c3a25cfb1475d58faa0c1dabf00e0397b000f8fb09ec&format=text&url=${encodeURIComponent(url)}`;
+
+const res = await fetch(api);
+
+const text = await res.text();
+
+return text;
+
+}
+
+window.getKey = async function(){
+
+const token =
+Math.random().toString(36).substring(2,12);
+
+const key = randomKey();
+
+await set(ref(db,"keys/"+token),{
+
+key:key,
+
+createdAt:Date.now()
+
+});
+
+const back =
+`${window.location.origin}${window.location.pathname}?token=${token}`;
+
+const shortLink =
+await createYeuMoney(back);
+
+window.location.href = shortLink;
+
+}
+
+const params =
+new URLSearchParams(location.search);
+
+const token =
+params.get("token");
+
+if(token){
+
+const dbRef =
+ref(db,"keys/"+token);
+
+onValue(dbRef,(snapshot)=>{
+
+if(snapshot.exists()){
+
+const data = snapshot.val();
+
+const box =
+document.getElementById("keyBox");
+
+box.style.display = "block";
+
+box.innerText = data.key;
+
+}
+
+});
+
+}
+
+const canvas =
+document.getElementById("bg");
+
+const ctx =
+canvas.getContext("2d");
+
+canvas.width = innerWidth;
+
+canvas.height = innerHeight;
+
+let particles = [];
+
+for(let i=0;i<80;i++){
+
+particles.push({
+
+x:Math.random()*canvas.width,
+
+y:Math.random()*canvas.height,
+
+r:Math.random()*2+1,
+
+dx:(Math.random()-0.5),
+
+dy:(Math.random()-0.5)
+
+});
+
+}
+
+function animate(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+particles.forEach(p=>{
+
+p.x += p.dx;
+
+p.y += p.dy;
+
+if(p.x<0||p.x>canvas.width)
+p.dx *= -1;
+
+if(p.y<0||p.y>canvas.height)
+p.dy *= -1;
+
+ctx.beginPath();
+
+ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+
+ctx.fillStyle="rgba(0,242,254,0.7)";
+
+ctx.fill();
+
+});
+
+requestAnimationFrame(animate);
+
+}
+
+animate();
+
+</script>
+
 </body>
 </html>
