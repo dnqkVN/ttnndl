@@ -1,310 +1,129 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>NEXUS KEY</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-<style>
-
-:root{
---bg:#050816;
---primary:#00f2fe;
---secondary:#4facfe;
---glass:rgba(255,255,255,0.03);
---border:rgba(255,255,255,0.08);
-}
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-}
-
-body{
-background:var(--bg);
-font-family:'Inter',sans-serif;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-overflow:hidden;
-color:white;
-}
-
-.card{
-width:350px;
-padding:30px;
-border-radius:25px;
-background:var(--glass);
-backdrop-filter:blur(15px);
-border:1px solid var(--border);
-text-align:center;
-box-shadow:0 0 40px rgba(0,0,0,0.5);
-}
-
-h1{
-font-family:'Rajdhani',sans-serif;
-font-size:38px;
-margin-bottom:10px;
-}
-
-h1 span{
-color:#00f2fe;
-}
-
-p{
-color:#aaa;
-margin-bottom:25px;
-}
-
-button{
-width:100%;
-height:50px;
-border:none;
-border-radius:14px;
-background:linear-gradient(135deg,#00f2fe,#4facfe);
-font-size:17px;
-font-weight:700;
-cursor:pointer;
-color:#000;
-transition:.3s;
-}
-
-button:hover{
-transform:translateY(-3px);
-}
-
-#keyBox{
-margin-top:25px;
-padding:15px;
-border-radius:15px;
-background:rgba(0,0,0,0.3);
-border:1px solid rgba(255,255,255,0.08);
-font-size:18px;
-word-break:break-all;
-display:none;
-}
-
-canvas{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-z-index:-1;
-}
-
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Fire Garena Account Checker API</title>
+    <style>
+        body { font-family: 'Courier New', monospace; background: #0a0a0a; color: #00ff00; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; background: #111; padding: 20px; border: 1px solid #333; border-radius: 8px; }
+        h1 { color: #ff6600; text-align: center; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .endpoint { background: #1a1a1a; padding: 15px; margin: 15px 0; border-left: 4px solid #ff6600; }
+        .method { color: #ffff00; font-weight: bold; }
+        .url { color: #00ffff; }
+        textarea { width: 100%; height: 200px; background: #000; color: #0f0; border: 1px solid #333; padding: 10px; font-family: monospace; }
+        button { background: #ff6600; color: #000; border: none; padding: 10px 25px; cursor: pointer; font-weight: bold; margin: 5px; }
+        button:hover { background: #ff8800; }
+        #result { background: #000; border: 1px solid #333; padding: 15px; margin-top: 15px; white-space: pre-wrap; word-wrap: break-word; min-height: 100px; }
+        .loading { color: #ffff00; }
+        input { background: #000; color: #0f0; border: 1px solid #555; padding: 8px; width: 300px; margin: 5px; }
+    </style>
 </head>
 <body>
-
-<canvas id="bg"></canvas>
-
-<div class="card">
-
-<h1>NEXUS<span>KEY</span></h1>
-
-<p>Premium Key System</p>
-
-<button onclick="getKey()">
-GET KEY
-</button>
-
-<div id="keyBox"></div>
-
-</div>
-
-<script type="module">
-
-import { initializeApp }
-
-from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-
-import {
-
-getDatabase,
-ref,
-set,
-onValue
-
-}
-
-from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
-
-const firebaseConfig = {
-
-apiKey: "AIzaSyBPS1LHGU4BctFPO8vzje9LY3dln2i3FQw",
-
-authDomain: "tunut-22b3c.firebaseapp.com",
-
-databaseURL: "https://tunut-22b3c-default-rtdb.firebaseio.com",
-
-projectId: "tunut-22b3c",
-
-storageBucket: "tunut-22b3c.firebasestorage.app",
-
-messagingSenderId: "311389599595",
-
-appId: "1:311389599595:web:fc7e5ad5e5c7f6fc6ffe2e"
-
-};
-
-const app = initializeApp(firebaseConfig);
-
-const db = getDatabase(app);
-
-function randomKey(){
-
-const chars =
-'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-
-let p1='',p2='';
-
-for(let i=0;i<4;i++)
-p1 += chars.charAt(Math.floor(Math.random()*chars.length));
-
-for(let i=0;i<4;i++)
-p2 += chars.charAt(Math.floor(Math.random()*chars.length));
-
-return `VIP-${p1}-${p2}`;
-
-}
-
-async function createYeuMoney(url){
-
-const api =
-`https://yeumoney.com/QL_api.php?token=f7916abe40bf4bc636b0c3a25cfb1475d58faa0c1dabf00e0397b000f8fb09ec&format=text&url=${encodeURIComponent(url)}`;
-
-const res = await fetch(api);
-
-const text = await res.text();
-
-return text;
-
-}
-
-window.getKey = async function(){
-
-const token =
-Math.random().toString(36).substring(2,12);
-
-const key = randomKey();
-
-await set(ref(db,"keys/"+token),{
-
-key:key,
-
-createdAt:Date.now()
-
-});
-
-const back =
-`${window.location.origin}${window.location.pathname}?token=${token}`;
-
-const shortLink =
-await createYeuMoney(back);
-
-window.location.href = shortLink;
-
-}
-
-const params =
-new URLSearchParams(location.search);
-
-const token =
-params.get("token");
-
-if(token){
-
-const dbRef =
-ref(db,"keys/"+token);
-
-onValue(dbRef,(snapshot)=>{
-
-if(snapshot.exists()){
-
-const data = snapshot.val();
-
-const box =
-document.getElementById("keyBox");
-
-box.style.display = "block";
-
-box.innerText = data.key;
-
-}
-
-});
-
-}
-
-const canvas =
-document.getElementById("bg");
-
-const ctx =
-canvas.getContext("2d");
-
-canvas.width = innerWidth;
-
-canvas.height = innerHeight;
-
-let particles = [];
-
-for(let i=0;i<80;i++){
-
-particles.push({
-
-x:Math.random()*canvas.width,
-
-y:Math.random()*canvas.height,
-
-r:Math.random()*2+1,
-
-dx:(Math.random()-0.5),
-
-dy:(Math.random()-0.5)
-
-});
-
-}
-
-function animate(){
-
-ctx.clearRect(0,0,canvas.width,canvas.height);
-
-particles.forEach(p=>{
-
-p.x += p.dx;
-
-p.y += p.dy;
-
-if(p.x<0||p.x>canvas.width)
-p.dx *= -1;
-
-if(p.y<0||p.y>canvas.height)
-p.dy *= -1;
-
-ctx.beginPath();
-
-ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-
-ctx.fillStyle="rgba(0,242,254,0.7)";
-
-ctx.fill();
-
-});
-
-requestAnimationFrame(animate);
-
-}
-
-animate();
-
-</script>
-
+    <div class="container">
+        <h1>🔥 FF GARENA ACCOUNT CHECKER API</h1>
+        <p>// Тул для проверки аккаунтов Free Fire по ID и Access Token</p>
+
+        <div class="endpoint">
+            <p><span class="method">POST</span> <span class="url">/api/check</span></p>
+            <p>Тело запроса (JSON): {"player_id": "123456789", "access_token": "ваш_токен"}</p>
+            <button onclick="testAPI()">🧪 ТЕСТИРОВАТЬ API</button>
+        </div>
+
+        <input type="text" id="playerId" placeholder="Player ID (например: 123456789)"><br>
+        <input type="text" id="token" placeholder="Access Token"><br>
+        <button onclick="checkAccount()">🚀 ПРОВЕРИТЬ АККАУНТ</button>
+        <div id="result">Ожидание запроса...</div>
+        
+        <hr style="border-color: #333;">
+        <h2>📋 ЛОГ ЗАПРОСОВ (СЕРВЕРНАЯ ЧАСТЬ)</h2>
+        <textarea id="serverLog" readonly>Сервер запущен. Порт 3000.
+        Доступные маршруты:
+        - POST /api/check  (основная проверка)
+        - GET  /api/health (состояние сервера)
+        </textarea>
+    </div>
+
+    <script>
+        // Базовый URL API. Если запускаете локально, оставьте так.
+        // Для деплоя замените на ваш домен.
+        const API_BASE = window.location.origin; 
+        
+        // Функция для отображения результата на странице
+        function displayResult(data) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = JSON.stringify(data, null, 2);
+        }
+
+        // Функция для логирования на клиенте (отражает в textarea)
+        function clientLog(message) {
+            const logArea = document.getElementById('serverLog');
+            logArea.textContent += '\n[CLIENT] ' + message;
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        // Тестирование конечной точки API из браузера
+        async function testAPI() {
+            const testData = {
+                player_id: "888888888",
+                access_token: "test_token_abc123"
+            };
+            clientLog('Отправка тестового запроса на /api/check...');
+            try {
+                const response = await fetch(`${API_BASE}/api/check`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                const data = await response.json();
+                displayResult(data);
+                clientLog('Тестовый ответ: ' + JSON.stringify(data));
+            } catch (error) {
+                displayResult({ error: 'Сервер не отвечает. Убедитесь, что он запущен.' });
+                clientLog('ОШИБКА: ' + error.message);
+            }
+        }
+
+        // Основная проверка по введенным данным
+        async function checkAccount() {
+            const playerId = document.getElementById('playerId').value.trim();
+            const token = document.getElementById('token').value.trim();
+            
+            if (!playerId || !token) {
+                alert('Введите Player ID и Access Token');
+                return;
+            }
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<span class="loading">⏳ Проверка через Garena API...</span>';
+            clientLog(`Проверка ID: ${playerId} Token: ${token.substring(0, 5)}...`);
+
+            try {
+                const response = await fetch(`${API_BASE}/api/check`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ player_id: playerId, access_token: token })
+                });
+                const data = await response.json();
+                displayResult(data);
+                clientLog('Ответ: ' + JSON.stringify(data));
+            } catch (error) {
+                displayResult({ status: 'error', message: 'Не удалось подключиться к серверу.' });
+                clientLog('ОШИБКА: ' + error.message);
+            }
+        }
+
+        // Проверка здоровья сервера при загрузке
+        window.addEventListener('load', async () => {
+            try {
+                const resp = await fetch(`${API_BASE}/api/health`);
+                const health = await resp.json();
+                clientLog('Сервер доступен: ' + JSON.stringify(health));
+            } catch (e) {
+                clientLog('ВНИМАНИЕ: Локальный сервер не запущен. Запустите Node.js часть.');
+                document.getElementById('result').textContent = 'Сервер не запущен. Выполните "node server.js" в консоли.';
+            }
+        });
+    </script>
 </body>
 </html>
