@@ -1,127 +1,106 @@
+<!-- index.html (сохраните в папке public/index.html) -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Free Fire Garena Account Checker API</title>
+    <title>FF Auto Token Checker</title>
     <style>
         body { font-family: 'Courier New', monospace; background: #0a0a0a; color: #00ff00; margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; background: #111; padding: 20px; border: 1px solid #333; border-radius: 8px; }
+        .container { max-width: 700px; margin: 0 auto; background: #111; padding: 20px; border: 1px solid #333; border-radius: 8px; }
         h1 { color: #ff6600; text-align: center; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .endpoint { background: #1a1a1a; padding: 15px; margin: 15px 0; border-left: 4px solid #ff6600; }
-        .method { color: #ffff00; font-weight: bold; }
-        .url { color: #00ffff; }
-        textarea { width: 100%; height: 200px; background: #000; color: #0f0; border: 1px solid #333; padding: 10px; font-family: monospace; }
-        button { background: #ff6600; color: #000; border: none; padding: 10px 25px; cursor: pointer; font-weight: bold; margin: 5px; }
+        .info-box { background: #1a1a00; border: 1px solid #ffaa00; padding: 10px; margin: 10px 0; border-radius: 4px; color: #ffaa00; }
+        .endpoint { background: #1a1a1a; padding: 15px; margin: 15px 0; border-left: 4px solid #00ff00; }
+        input { background: #000; color: #0f0; border: 1px solid #555; padding: 12px; width: 70%; margin: 5px; font-size: 16px; }
+        button { background: #ff6600; color: #000; border: none; padding: 12px 30px; cursor: pointer; font-weight: bold; font-size: 16px; }
         button:hover { background: #ff8800; }
-        #result { background: #000; border: 1px solid #333; padding: 15px; margin-top: 15px; white-space: pre-wrap; word-wrap: break-word; min-height: 100px; }
+        #result { background: #000; border: 1px solid #333; padding: 15px; margin-top: 15px; white-space: pre-wrap; word-wrap: break-word; min-height: 150px; max-height: 400px; overflow-y: auto; }
         .loading { color: #ffff00; }
-        input { background: #000; color: #0f0; border: 1px solid #555; padding: 8px; width: 300px; margin: 5px; }
+        .success { color: #00ff00; }
+        .error { color: #ff4444; }
+        textarea { width: 100%; height: 100px; background: #000; color: #0f0; border: 1px solid #333; padding: 10px; font-family: monospace; margin-top: 10px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🔥 FF GARENA ACCOUNT CHECKER API</h1>
-        <p>// Тул для проверки аккаунтов Free Fire по ID и Access Token</p>
-
-        <div class="endpoint">
-            <p><span class="method">POST</span> <span class="url">/api/check</span></p>
-            <p>Тело запроса (JSON): {"player_id": "123456789", "access_token": "ваш_токен"}</p>
-            <button onclick="testAPI()">🧪 ТЕСТИРОВАТЬ API</button>
+        <h1>🎮 FF GARENA - ПРОВЕРКА ПО ID (ТОКЕН АВТО)</h1>
+        
+        <div class="info-box">
+            ⚡ Теперь достаточно ввести только Player ID. Сервер автоматически получит токен и проверит аккаунт.
         </div>
 
-        <input type="text" id="playerId" placeholder="Player ID (например: 123456789)"><br>
-        <input type="text" id="token" placeholder="Access Token"><br>
-        <button onclick="checkAccount()">🚀 ПРОВЕРИТЬ АККАУНТ</button>
-        <div id="result">Ожидание запроса...</div>
+        <div class="endpoint">
+            <p><strong>POST /api/check</strong></p>
+            <p>Тело запроса: <code>{ "player_id": "123456789" }</code></p>
+        </div>
+
+        <input type="text" id="playerId" placeholder="Введите Player ID (например: 987654321)"><br>
+        <button onclick="checkAccount()">🔍 ПРОВЕРИТЬ АККАУНТ</button>
         
-        <hr style="border-color: #333;">
-        <h2>📋 ЛОГ ЗАПРОСОВ (СЕРВЕРНАЯ ЧАСТЬ)</h2>
-        <textarea id="serverLog" readonly>Сервер запущен. Порт 3000.
-        Доступные маршруты:
-        - POST /api/check  (основная проверка)
-        - GET  /api/health (состояние сервера)
-        </textarea>
+        <div id="result">
+            <span style="color:#888;">Введите ID и нажмите "Проверить". Токен будет получен автоматически.</span>
+        </div>
+
+        <textarea id="serverLog" readonly>Журнал операций:
+Сервер готов к работе.</textarea>
     </div>
 
     <script>
-        // Базовый URL API. Если запускаете локально, оставьте так.
-        // Для деплоя замените на ваш домен.
-        const API_BASE = window.location.origin; 
-        
-        // Функция для отображения результата на странице
-        function displayResult(data) {
-            const resultDiv = document.getElementById('result');
-            resultDiv.textContent = JSON.stringify(data, null, 2);
-        }
+        const API_BASE = window.location.origin;
 
-        // Функция для логирования на клиенте (отражает в textarea)
-        function clientLog(message) {
+        function clientLog(msg) {
             const logArea = document.getElementById('serverLog');
-            logArea.textContent += '\n[CLIENT] ' + message;
+            logArea.textContent += '\n> ' + msg;
             logArea.scrollTop = logArea.scrollHeight;
         }
 
-        // Тестирование конечной точки API из браузера
-        async function testAPI() {
-            const testData = {
-                player_id: "888888888",
-                access_token: "test_token_abc123"
-            };
-            clientLog('Отправка тестового запроса на /api/check...');
-            try {
-                const response = await fetch(`${API_BASE}/api/check`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(testData)
-                });
-                const data = await response.json();
-                displayResult(data);
-                clientLog('Тестовый ответ: ' + JSON.stringify(data));
-            } catch (error) {
-                displayResult({ error: 'Сервер не отвечает. Убедитесь, что он запущен.' });
-                clientLog('ОШИБКА: ' + error.message);
-            }
-        }
-
-        // Основная проверка по введенным данным
         async function checkAccount() {
             const playerId = document.getElementById('playerId').value.trim();
-            const token = document.getElementById('token').value.trim();
+            const resultDiv = document.getElementById('result');
             
-            if (!playerId || !token) {
-                alert('Введите Player ID и Access Token');
+            if (!playerId) {
+                alert('Пожалуйста, введите Player ID');
                 return;
             }
-            
-            const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = '<span class="loading">⏳ Проверка через Garena API...</span>';
-            clientLog(`Проверка ID: ${playerId} Token: ${token.substring(0, 5)}...`);
+
+            resultDiv.innerHTML = '<span class="loading">⏳ Шаг 1: Получение токена по ID... (это может занять несколько секунд)</span>';
+            clientLog('Проверка ID: ' + playerId + ' (токен будет получен автоматически)');
 
             try {
                 const response = await fetch(`${API_BASE}/api/check`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ player_id: playerId, access_token: token })
+                    body: JSON.stringify({ player_id: playerId })
                 });
+                
                 const data = await response.json();
-                displayResult(data);
-                clientLog('Ответ: ' + JSON.stringify(data));
+                
+                if (data.status === 'success') {
+                    resultDiv.innerHTML = `<span class="success">✅ АККАУНТ НАЙДЕН</span>\n\n` +
+                        `👤 Ник: ${data.account_info.nickname}\n` +
+                        `🆔 UID: ${data.account_info.uid}\n` +
+                        `📊 Уровень: ${data.account_info.level}\n` +
+                        `🌍 Регион: ${data.account_info.region}\n` +
+                        `🔗 Токен получен: ${data.account_info.auto_token_used}\n\n` +
+                        `Полный ответ:\n${JSON.stringify(data.raw_api_response, null, 2)}`;
+                    clientLog('Успех: ' + data.account_info.nickname + ' (Уровень ' + data.account_info.level + ')');
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ ОШИБКА</span>\n${JSON.stringify(data, null, 2)}`;
+                    clientLog('Ошибка: ' + data.message);
+                }
             } catch (error) {
-                displayResult({ status: 'error', message: 'Не удалось подключиться к серверу.' });
-                clientLog('ОШИБКА: ' + error.message);
+                resultDiv.innerHTML = '<span class="error">❌ Сервер не отвечает. Убедитесь, что Node.js запущен.</span>';
+                clientLog('КРИТИЧЕСКАЯ ОШИБКА: ' + error.message);
             }
         }
 
-        // Проверка здоровья сервера при загрузке
         window.addEventListener('load', async () => {
             try {
                 const resp = await fetch(`${API_BASE}/api/health`);
                 const health = await resp.json();
-                clientLog('Сервер доступен: ' + JSON.stringify(health));
+                clientLog('Сервер доступен. Версия: ' + health.service);
             } catch (e) {
-                clientLog('ВНИМАНИЕ: Локальный сервер не запущен. Запустите Node.js часть.');
-                document.getElementById('result').textContent = 'Сервер не запущен. Выполните "node server.js" в консоли.';
+                clientLog('ВНИМАНИЕ: Сервер не запущен. Выполните node server.js');
             }
         });
     </script>
