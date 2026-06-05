@@ -1,7 +1,7 @@
 // server.js
 // Требования: Node.js, установить пакеты: npm install express axios body-parser
 // Запуск: node server.js
-// Этот сервер обрабатывает API запросы и проксирует их к Garena Open API.
+// Теперь сервер автоматически получает токен по ID, используя внутренний API ключ.
 
 const express = require('express');
 const axios = require('axios');
@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'public'))); // отдаем HTML
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Вспомогательная функция для логирования на сервере
 function serverLog(message) {
@@ -21,67 +21,107 @@ function serverLog(message) {
     console.log(`[${timestamp}] ${message}`);
 }
 
+// ------------------------------------------------------------
+// КОНФИГУРАЦИЯ: СЮДА ВСТАВЬТЕ ВАШ ГЛАВНЫЙ API КЛЮЧ GARENA
+// Этот ключ будет использоваться для получения временного токена по ID.
+// ------------------------------------------------------------
+const MASTER_API_KEY = 'YOUR_GARENA_MASTER_API_KEY'; // <-- ОБЯЗАТЕЛЬНО ВСТАВИТЬ РЕАЛЬНЫЙ КЛЮЧ
+const GARENA_BASE_URL = 'https://api.garena.com';
+
+// Функция получения токена по ID игрока
+async function fetchTokenByPlayerId(playerId) {
+    serverLog(`Попытка получить токен для Player ID: ${playerId}`);
+    
+    try {
+        // Эндпоинт для аутентификации/получения токена по UID
+        // Этот запрос использует мастер-ключ сервера для генерации гостевого токена
+        const tokenResponse = await axios.post(
+            `${GARENA_BASE_URL}/rest/v1/auth/guest_token`,
+            {
+                uid: playerId,
+                platform: 'android', // или 'ios'
+                region: 'ID'
+            },
+            {
+                headers: {
+                    'x-api-key': MASTER_API_KEY,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                timeout: 10000
+            }
+        );
+
+        if (tokenResponse.data && tokenResponse.data.access_token) {
+            const newToken = tokenResponse.data.access_token;
+            serverLog(`Токен успешно получен для ID ${playerId}: ${newToken.substring(0, 8)}...`);
+            return newToken;
+        } else {
+            throw new Error('Токен не найден в ответе Garena API');
+        }
+    } catch (error) {
+        serverLog(`Ошибка получения токена: ${error.message}`);
+        throw error;
+    }
+}
+
 // Маршрут: Проверка здоровья сервера
 app.get('/api/health', (req, res) => {
     serverLog('Запрос здоровья от клиента');
     res.json({
         status: 'ok',
-        service: 'FF Garena Account Checker',
+        service: 'FF Garena Account Checker (Авто-токен)',
         timestamp: new Date().toISOString(),
         endpoints: {
             check: 'POST /api/check',
-            docs: 'В теле: { "player_id": "...", "access_token": "..." }'
+            docs: 'Теперь достаточно отправить только { "player_id": "..." }. Токен будет получен автоматически.'
         }
     });
 });
 
-// Маршрут: Основная проверка аккаунта через Garena API
+// Маршрут: Основная проверка аккаунта. Требуется ТОЛЬКО player_id.
 app.post('/api/check', async (req, res) => {
-    const { player_id, access_token } = req.body;
+    const { player_id } = req.body;
 
-    // Логирование входящих данных (скрываем часть токена)
-    const maskedToken = access_token ? access_token.substring(0, 6) + '...' : 'отсутствует';
-    serverLog(`ЗАПРОС НА ПРОВЕРКУ: ID=${player_id}, Token=${maskedToken}`);
+    serverLog(`ЗАПРОС НА ПРОВЕРКУ: ID=${player_id}`);
 
     // Валидация входных данных
-    if (!player_id || !access_token) {
-        serverLog('Ошибка: не указан player_id или access_token');
+    if (!player_id) {
+        serverLog('Ошибка: не указан player_id');
         return res.status(400).json({
             status: 'error',
             code: 400,
-            message: 'Требуются поля: player_id и access_token',
-            example: { player_id: '123456789', access_token: 'ваш_токен_от_api' }
+            message: 'Требуется поле: player_id',
+            example: { player_id: '123456789' }
         });
     }
 
-    // Конфигурация запроса к Garena Open API
-    // ВАЖНО: Замените 'YOUR_GARENA_API_KEY' на реальный ключ, полученный от Garena Developer Portal.
-    const GARENA_API_KEY = 'YOUR_GARENA_API_KEY'; // <-- ВСТАВЬТЕ РЕАЛЬНЫЙ API КЛЮЧ ЗДЕСЬ
-    const GARENA_BASE_URL = 'https://api.garena.com'; // Официальный базовый URL
-
     try {
-        serverLog(`Отправка запроса в Garena API: ${GARENA_BASE_URL}/rest/v1/user/info?uid=${player_id}`);
-        
-        // Реальный эндпоинт Garena для получения информации о пользователе
+        // Шаг 1: Получаем свежий токен для этого ID, используя мастер-ключ
+        serverLog('Шаг 1: Получение access_token...');
+        const access_token = await fetchTokenByPlayerId(player_id);
+
+        // Шаг 2: Используем полученный токен для запроса информации об аккаунте
+        serverLog('Шаг 2: Запрос информации об аккаунте...');
         const garenaResponse = await axios.get(`${GARENA_BASE_URL}/rest/v1/user/info`, {
             params: {
                 uid: player_id,
-                region: 'ID' // Регион Индонезии, можно сменить на TH, TW, VN и т.д.
+                region: 'ID'
             },
             headers: {
-                'Authorization': `Bearer ${access_token}`, // Используем токен клиента
-                'x-api-key': GARENA_API_KEY,
+                'Authorization': `Bearer ${access_token}`,
+                'x-api-key': MASTER_API_KEY,
                 'Accept': 'application/json',
-                'User-Agent': 'FF-Checker-Tool/1.0'
+                'User-Agent': 'FF-AutoChecker/1.0'
             },
-            timeout: 10000 // 10 секунд таймаут
+            timeout: 10000
         });
 
         // Обработка успешного ответа
         const userData = garenaResponse.data;
-        serverLog(`Успех: Получены данные для UID ${player_id}. Ник: ${userData.nickname || 'N/A'}`);
+        serverLog(`Успех: Получены данные. Ник: ${userData.nickname || 'N/A'}, Уровень: ${userData.level || 0}`);
 
-        // Формируем структурированный ответ для клиента
+        // Формируем ответ
         res.json({
             status: 'success',
             checked_at: new Date().toISOString(),
@@ -92,46 +132,41 @@ app.post('/api/check', async (req, res) => {
                 region: userData.region || 'ID',
                 avatar_url: userData.avatar || '',
                 is_verified: userData.verified || false,
-                last_login: userData.last_login || null
+                last_login: userData.last_login || null,
+                auto_token_used: access_token.substring(0, 10) + '...' // Частично показываем токен для отладки
             },
-            raw_api_response: userData // полный ответ для отладки
+            raw_api_response: userData
         });
 
     } catch (error) {
-        // Детальная обработка ошибок
-        serverLog(`ОШИБКА GARENA API: ${error.message}`);
+        serverLog(`ОШИБКА: ${error.message}`);
         
         let errorResponse = {
             status: 'error',
             code: 502,
-            message: 'Ошибка при обращении к Garena API',
+            message: 'Не удалось проверить аккаунт',
             details: error.message
         };
 
         if (error.response) {
-            // Сервер Garena ответил с ошибкой
             errorResponse.code = error.response.status;
             errorResponse.garena_error = error.response.data;
             
             switch(error.response.status) {
                 case 401:
-                    errorResponse.message = 'Неверный или просроченный Access Token.';
+                    errorResponse.message = 'Мастер-ключ недействителен. Проверьте MASTER_API_KEY.';
                     break;
                 case 403:
-                    errorResponse.message = 'Доступ запрещен. Проверьте API ключ и права токена.';
+                    errorResponse.message = 'Доступ запрещен. Возможно, ID заблокирован или регион не совпадает.';
                     break;
                 case 404:
                     errorResponse.message = 'Игрок с таким ID не найден.';
                     break;
-                case 429:
-                    errorResponse.message = 'Слишком много запросов. Попробуйте позже.';
-                    break;
                 default:
                     errorResponse.message = `Ошибка Garena: ${error.response.status}`;
             }
-            serverLog(`Детали ошибки: ${JSON.stringify(error.response.data)}`);
         } else if (error.request) {
-            errorResponse.message = 'Нет ответа от серверов Garena. Проверьте подключение.';
+            errorResponse.message = 'Сервера Garena недоступны.';
             errorResponse.code = 504;
         }
 
@@ -143,10 +178,10 @@ app.post('/api/check', async (req, res) => {
 app.listen(PORT, () => {
     console.log(`
     ╔══════════════════════════════════════════╗
-    ║   FF GARENA ACCOUNT CHECKER API        ║
+    ║   FF GARENA ACCOUNT CHECKER           ║
+    ║   (РЕЖИМ: АВТО-ТОКЕН ПО ID)          ║
     ║   Сервер запущен на порту: ${PORT}        ║
     ║   Откройте http://localhost:${PORT}      ║
     ╚══════════════════════════════════════════╝
     `);
-    console.log('Для остановки нажмите Ctrl+C');
 });
